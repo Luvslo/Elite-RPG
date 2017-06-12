@@ -7,17 +7,6 @@
 
 <script>
 
-/*
- *
- * Elite-RPG HTML5 Canavas / Websocket Map
- * @author  <theHeadTy@elite - Tyler S>
- * @copy Elite-RPG Gaming
- * http://i.imgur.com/3YGdYRy.png
- * 'http://torax.outwar.com/images/maptile/YAH.gif';
- *  v-on:mousedown="handleMouseDown" v-on:mouseup="handleMouseUp" v-on:mousemove="handleMouseMove"
- *
- */
-
 export default {
 
     props: ['map'],
