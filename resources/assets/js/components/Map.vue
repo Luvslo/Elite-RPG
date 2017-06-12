@@ -11,6 +11,13 @@ export default {
 
     props: ['map'],
 
+
+    computed: {
+        mapData: function() {
+            return this.map;
+        }
+    },
+
     methods: {
 
         drawMap: function(ctx) {
@@ -40,6 +47,10 @@ export default {
 
         const canvas = this.$refs.mapCanvas;
         const ctx = canvas.getContext('2d');
+
+        this.mapData();
+
+        console.log('src: ' + this.map.src);
 
         this.gameLoop(ctx);
 
