@@ -152,7 +152,7 @@ export default {
             var ctx = this.ctx;
             var pimage = new Image();
             //pimage.src = 'http://torax.outwar.com/images/maptile/YAH.gif';
-            pimage.src = 'https://www.dropbox.com/home?preview=YAH.gif';
+            pimage.src = 'https://dl.dropboxusercontent.com/content_link/FYzkCNnD6Y6RrfS76eVYnrNjNQVoO7yhhIqIhSroUsrN31TFRlig1gULBVW6V5jE/file';
 
             var x = this.screenX - this.pwidth / 2;
             var y = this.screenY - this.pheight / 2;
