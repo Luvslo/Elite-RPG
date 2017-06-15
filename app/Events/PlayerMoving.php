@@ -38,6 +38,6 @@ class PlayerMoving implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PresenceChannel('elite-world');
+        return new PresenceChannel('eliteworld');
     }
 }

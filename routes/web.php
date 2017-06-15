@@ -32,4 +32,4 @@ Route::post('messages', 'MessageController@store');
 
 Route::get('map', 'MapController@index')->name('map');
 Route::get('loadmap', 'MapController@show');
-Route::get('maps', 'MapController@update')->name('maps');
+Route::get('maps', 'MapController@map')->name('maps');

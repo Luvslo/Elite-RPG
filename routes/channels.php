@@ -19,6 +19,6 @@ Broadcast::channel('chatroom', function ($user) {
     return $user;
 });
 
-Broadcast::channel('elite-world', function($user) {
+Broadcast::channel('eliteworld', function($user) {
     return $user;
 });

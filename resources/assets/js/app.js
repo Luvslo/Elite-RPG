@@ -22,7 +22,7 @@ window.Vue = require('vue');
 
  /* Elite-RPG Map */
  Vue.component('elite-map', require('./components/Map.vue'));
- Vue.component('player-move', require('./components/PlayerMove.vue'));
+ //Vue.component('player-move', require('./components/PlayerMove.vue'));
 
  const app = new Vue({
      el: '#app',
@@ -35,9 +35,15 @@ window.Vue = require('vue');
 
          // world
          direction: '',
+         step: '',
          playersInWorld: [],
-         speed: 5,
+         speed: 750,
          maps: [],
+         x: 150,
+         y: 150,
+         src: '',
+         then: '',
+         now: '',
 
      },
 
@@ -51,22 +57,58 @@ window.Vue = require('vue');
              });
          },
 
-         playerMove: function(direction) {
+         playerMove: function(direction, step) {
+
              if (direction == 'left') {
-                 this.x -= this.speed;
+                 this.x -= this.speed * step
              }
              if (direction == 'right') {
-                 this.y += this.speed;
+                 this.x += this.speed * step
              }
              if (direction == 'up') {
-                 this.y -= this.speed;
+                 this.y -= this.speed * step
              }
              if (direction == 'down') {
-                 this.y += this.speed;
+                 this.y += this.speed * step
              }
 
+             // don't let player leaves the world's boundary
+             if(this.x - 12 / 2 < 0){
+                 this.x = 12 / 2;
+             }
+             if(this.y - 12 / 2 < 0){
+                 this.y = 12 / 2;
+             }
+             if(this.x + 12 / 2 > this.maps.width){
+                 this.x = this.maps.width - 12 / 2;
+             }
+             if(this.y + 12 / 2 > this.maps.height){
+                 this.y = this.maps.height - 12 / 2;
+             }
+
+             this.maps = [];
+             this.maps.push({
+                 src: this.src,
+                 x: this.x,
+                 y: this.y,
+                 width: 384,
+                 height: 384,
+             });
          },
 
+         loadMap: function() {
+             axios.get('/loadmap').then(response => {
+                 this.maps = [];
+                 this.maps.push({
+                     src: response.data,
+                     x: this.x,
+                     y: this.y,
+                     width: 384,
+                     height: 384,
+                 });
+                 this.src = response.data;
+             });
+         }
      },
 
      created: function() {
@@ -75,26 +117,30 @@ window.Vue = require('vue');
              this.items = response.data;
          });
 
-         axios.get('/loadmap').then(response => {
-             this.maps.push({
-                 src: response.data,
-                 x: 150,
-                 y: 150,
-             });
-         });
+         this.loadMap();
 
-         Echo.join('elite-world').here((users) => {
-             this.playersInWorld = users;
-         }).joining((user) => {
-            this.playersInWorld.push(user);
-         }).leaving((user) => {
-            this.playersInWorld = this.playersInWorld.filter(u => u != user)
-         }).listen('PlayerMoving', (e) => {
-             this.src = e.map.src;
-             this.x = this.x;
-             this.y = this.y;
-             console.log('Map loading.');
-         });
+         this.then = Date.now();
+
+         Echo.join('eliteworld').here((users) => {
+               this.playersInWorld = users;
+           }).joining((user) => {
+              this.playersInWorld.push(user);
+           }).leaving((user) => {
+              this.playersInWorld = this.playersInWorld.filter(u => u != user)
+           }).listen('PlayerMoving', (e) => {
+               var x = this.x;
+               var y = this.y;
+               this.maps = [];
+               this.maps.push({
+                   src: e.map.image,
+                   x: x,
+                   y: y,
+               });
+               console.log('broadcasing.');
+           });
+
+
+
 
         Echo.join('chatroom')
              .here((users) => {
@@ -113,5 +159,4 @@ window.Vue = require('vue');
                  });
              });
        },
-
  });

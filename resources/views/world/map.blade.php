@@ -18,15 +18,19 @@
                     <elite-map
                         v-for="map in maps"
                         :key="map.id"
-                        :v-bind:map="map"
+                        :map="map"
+                        v-on:send="playerMove"
+                        v-bind:direction="direction"
+                        v-bind:step="step"
+                        @keyup.left="moveLeft"
                         >
                     </elite-map>
                     <!-- PlayerMove.vue -->
-                    <player-move
+                    <!--<player-move
                         v-on:send="playerMove"
                         v-bind:direction="direction"
                         >
-                    </player-move>
+                    </player-move>-->
 
                 </div>
             </div>
