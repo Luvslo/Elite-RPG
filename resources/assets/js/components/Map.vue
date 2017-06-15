@@ -4,8 +4,6 @@
         X: {{ this.map.x }} - Y: {{ this.map.y }}
     </div>
 </template>
-
-
 <script>
 
 
@@ -28,7 +26,7 @@ export default {
             // canvas
             src: '',
             ctx: '',
-            speed: 256,
+            speed: 356,
             maps: [],
             width: 300,
             height: 300,
@@ -153,7 +151,8 @@ export default {
         drawPlayer: function() {
             var ctx = this.ctx;
             var pimage = new Image();
-            pimage.src = 'http://torax.outwar.com/images/maptile/YAH.gif';
+            //pimage.src = 'http://torax.outwar.com/images/maptile/YAH.gif';
+            pimage.src = 'https://www.dropbox.com/home?preview=YAH.gif';
 
             var x = this.screenX - this.pwidth / 2;
             var y = this.screenY - this.pheight / 2;

@@ -2237,10 +2237,18 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
-//
 
 
+/**
+ * Elite-RPG Explore
+ * @author <theHeadTy - Ty.S>
+ *
+ * @todo - Right now the map is only a single image. I would like to
+ * switch to the regular 'tile' format using a JSON file with the
+ * map image coordinates. That will allow for easy pathfinding, collision,
+ * NPC placement, and to add new worlds to the game...
+ *
+ */
 /* harmony default export */ __webpack_exports__["default"] = ({
 
     props: ['map'],
@@ -2250,7 +2258,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             // canvas
             src: '',
             ctx: '',
-            speed: 256,
+            speed: 356,
             maps: [],
             width: 300,
             height: 300,
@@ -2300,24 +2308,21 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         },
 
         cameraUpdate: function cameraUpdate() {
-            // assume followed sprite should be placed at the center of the screen
-            // whenever possible
+
             this.screenX = this.width / 2;
             this.screenY = this.height / 2;
 
-            // make the camera follow the sprite
             this.camX = this.following.x - this.width / 2;
             this.camY = this.following.y - this.height / 2;
+
             // clamp values
             this.camX = Math.max(0, Math.min(this.camX, this.maxX));
             this.camY = Math.max(0, Math.min(this.camY, this.maxY));
 
-            // in map corners, the sprite cannot be placed in the center of the screen
-            // and we have to change its screen coordinates
             if (this.following.x < this.width / 2 || this.following.x > this.maxX + this.width / 2) {
                 this.screenX = this.following.x - this.camX;
             }
-            // top and bottom sides
+
             if (this.following.y < this.height / 2 || this.following.y > this.maxY + this.height / 2) {
                 this.screenY = this.following.y - this.camY;
             }
@@ -2375,7 +2380,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         drawPlayer: function drawPlayer() {
             var ctx = this.ctx;
             var pimage = new Image();
-            pimage.src = 'http://torax.outwar.com/images/maptile/YAH.gif';
+            //pimage.src = 'http://torax.outwar.com/images/maptile/YAH.gif';
+            pimage.src = 'https://www.dropbox.com/home?preview=YAH.gif';
 
             var x = this.screenX - this.pwidth / 2;
             var y = this.screenY - this.pheight / 2;
