@@ -1,7 +1,9 @@
 <template>
     <div class="elite-map">
-        <canvas ref="mapCanvas" :width="300" :height="300"></canvas>
-        X: {{ this.map.x }} - Y: {{ this.map.y }}
+        <canvas ref="mapCanvas" :width="width" :height="height"></canvas>
+        <div>
+            <small>X: {{ map.x }} - Y: {{ map.y }}</small>
+        </div>
     </div>
 </template>
 <script>
@@ -23,19 +25,18 @@ export default {
 
     data() {
         return {
+
             // canvas
             src: '',
             ctx: '',
-            speed: 356,
             maps: [],
             width: 300,
             height: 300,
 
-            moving: false,
-
             // player
-            pwidth: 12,
-            pheight: 12,
+            pwidth: 10,
+            pheight: 10,
+            speed: 400,
 
             // camera
             camX: 0,
@@ -50,12 +51,18 @@ export default {
             now: 0,
             last: 0,
             step: 0,
+
+            // NPC
+            roomName: '',
         }
     },
 
     computed: {
         mapData: function() {
             return this.map;
+        },
+        roomData: function() {
+            return this.roomName;
         },
     },
 
@@ -98,36 +105,38 @@ export default {
             }
         },
 
-        previous: function (e) {
-
-            var dirx = 0;
-            var diry = 0;
+        updatePlayer: function (e) {
 
             if (e.keyCode == 37) {
-                dirx = -1;
-                this.map.x += dirx * this.speed * this.step;
+                this.map.x -= this.speed * this.step;
+                //this.map.x -= 6;
             }
             if (e.keyCode == 39) {
-                dirx = 1;
-                this.map.x += dirx * this.speed * this.step;
+                this.map.x += this.speed * this.step;
+                //this.map.x += 6;
             }
             if (e.keyCode == 38) {
-                diry = -1;
-                this.map.y += diry * this.speed * this.step;
+                this.map.y -= this.speed * this.step;
+                //this.map.y -= 6;
             }
             if (e.keyCode == 40) {
-                diry = 1;
-                this.map.y += diry * this.speed * this.step;
+                this.map.y += this.speed * this.step;
+                //this.map.y += 6;
             }
 
             // clamp values
-            var maxX = this.map.width - this.pwidth / 2;
-            var maxY = this.map.height - this.pheight / 2;
+            var maxX = this.map.width - (this.pwidth / 2);
+            var maxY = this.map.height - (this.pheight / 2);
             this.map.x = Math.max(0, Math.min(this.map.x, maxX));
             this.map.y = Math.max(0, Math.min(this.map.y, maxY));
 
             this.map.x = Math.ceil(this.map.x);
             this.map.y = Math.ceil(this.map.y);
+
+            //this.$emit('send', this.map.x, this.map.y);
+            //axios.get('/maps').then(response => {
+                // should be broadcasting the websocket event!?
+            //});
 
         },
 
@@ -151,41 +160,46 @@ export default {
         drawPlayer: function() {
             var ctx = this.ctx;
             var pimage = new Image();
-            //pimage.src = 'http://torax.outwar.com/images/maptile/YAH.gif';
-            pimage.src = 'https://dl.dropboxusercontent.com/content_link/FYzkCNnD6Y6RrfS76eVYnrNjNQVoO7yhhIqIhSroUsrN31TFRlig1gULBVW6V5jE/file';
-
+            pimage.src = 'http://i67.tinypic.com/15gblgz.gif';
             var x = this.screenX - this.pwidth / 2;
             var y = this.screenY - this.pheight / 2;
 
             pimage.onload = function() {
-                ctx.drawImage(pimage, x, y);
+                ctx.drawImage(pimage, x, y, pimage.width, pimage.height);
             }
         },
 
         drawAll: function() {
             var ctx = this.ctx;
-            ctx.clearRect(0, 0, this.width, this.height);
+            //ctx.clearRect(0, 0, this.width, this.height);
             this.drawMap();
             this.drawPlayer();
         },
 
         gameLoop: function(timestamp) {
-            window.requestAnimationFrame(this.gameLoop);
             this.now = timestamp;
             this.step = (this.now - this.last) / 1000.0;
-            //this.step = Math.min(this.step, 0.25);
+            this.step = Math.min(this.step, 0.25);
             this.last = this.now;
-            this.previous;
+            //this.previous;
+            this.updatePlayer;
             this.cameraUpdate();
             this.drawAll();
-            //requestAnimationFrame(this.gameLoop);
-        }
-
+            requestAnimationFrame(this.gameLoop);
+        },
     },
 
     created: function() {
-        window.addEventListener('keyup', this.previous);
-        window.addEventListener('keydown', this.previous);
+
+        addEventListener('keyup', this.updatePlayer);
+        addEventListener('keydown', this.updatePlayer);
+
+        // Elite-RPG World Websocket listen.
+        Echo.join('eliteworld').listen('PlayerMoving', (e) => {
+            this.roomName = e.map.name;
+            console.log('room name: ' + this.roomName);
+        });
+
     },
 
     mounted() {
@@ -196,7 +210,7 @@ export default {
         this.createCanvas(ctx);
         this.cameraCreate();
         this.cameraFollow(this.mapData);
-        window.requestAnimationFrame(this.gameLoop);
+        requestAnimationFrame(this.gameLoop);
     },
 
 }

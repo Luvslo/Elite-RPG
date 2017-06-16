@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use Auth;
 use App\Map;
 use App\User;
 use Illuminate\Broadcasting\Channel;

@@ -1138,16 +1138,12 @@ var app = new Vue({
         usersInRoom: [],
 
         // world
-        direction: '',
-        step: '',
         playersInWorld: [],
-        speed: 750,
         maps: [],
         x: 150,
         y: 150,
         src: '',
-        then: '',
-        now: ''
+        roomName: ''
 
     },
 
@@ -1157,45 +1153,6 @@ var app = new Vue({
         sendMessage: function sendMessage(item) {
             this.items.push(item);
             axios.post('/messages', item).then(function (response) {});
-        },
-
-        playerMove: function playerMove(direction, step) {
-
-            if (direction == 'left') {
-                this.x -= this.speed * step;
-            }
-            if (direction == 'right') {
-                this.x += this.speed * step;
-            }
-            if (direction == 'up') {
-                this.y -= this.speed * step;
-            }
-            if (direction == 'down') {
-                this.y += this.speed * step;
-            }
-
-            // don't let player leaves the world's boundary
-            if (this.x - 12 / 2 < 0) {
-                this.x = 12 / 2;
-            }
-            if (this.y - 12 / 2 < 0) {
-                this.y = 12 / 2;
-            }
-            if (this.x + 12 / 2 > this.maps.width) {
-                this.x = this.maps.width - 12 / 2;
-            }
-            if (this.y + 12 / 2 > this.maps.height) {
-                this.y = this.maps.height - 12 / 2;
-            }
-
-            this.maps = [];
-            this.maps.push({
-                src: this.src,
-                x: this.x,
-                y: this.y,
-                width: 384,
-                height: 384
-            });
         },
 
         loadMap: function loadMap() {
@@ -1218,14 +1175,8 @@ var app = new Vue({
     created: function created() {
         var _this2 = this;
 
-        axios.get('/messages').then(function (response) {
-            _this2.items = response.data;
-        });
-
+        // Elite-RPG World Socket Join/Leaving
         this.loadMap();
-
-        this.then = Date.now();
-
         Echo.join('eliteworld').here(function (users) {
             _this2.playersInWorld = users;
         }).joining(function (user) {
@@ -1234,16 +1185,11 @@ var app = new Vue({
             _this2.playersInWorld = _this2.playersInWorld.filter(function (u) {
                 return u != user;
             });
-        }).listen('PlayerMoving', function (e) {
-            var x = _this2.x;
-            var y = _this2.y;
-            _this2.maps = [];
-            _this2.maps.push({
-                src: e.map.image,
-                x: x,
-                y: y
-            });
-            console.log('broadcasing.');
+        });
+
+        // Chat
+        axios.get('/messages').then(function (response) {
+            _this2.items = response.data;
         });
 
         Echo.join('chatroom').here(function (users) {
@@ -2237,6 +2183,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
 
 
 /**
@@ -2255,19 +2203,18 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
     data: function data() {
         return {
+
             // canvas
             src: '',
             ctx: '',
-            speed: 356,
             maps: [],
             width: 300,
             height: 300,
 
-            moving: false,
-
             // player
-            pwidth: 12,
-            pheight: 12,
+            pwidth: 10,
+            pheight: 10,
+            speed: 400,
 
             // camera
             camX: 0,
@@ -2281,7 +2228,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             // delta
             now: 0,
             last: 0,
-            step: 0
+            step: 0,
+
+            // NPC
+            roomName: ''
         };
     },
 
@@ -2289,6 +2239,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     computed: {
         mapData: function mapData() {
             return this.map;
+        },
+        roomData: function roomData() {
+            return this.roomName;
         }
     },
 
@@ -2328,26 +2281,23 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             }
         },
 
-        previous: function previous(e) {
-
-            var dirx = 0;
-            var diry = 0;
+        updatePlayer: function updatePlayer(e) {
 
             if (e.keyCode == 37) {
-                dirx = -1;
-                this.map.x += dirx * this.speed * this.step;
+                this.map.x -= this.speed * this.step;
+                //this.map.x -= 6;
             }
             if (e.keyCode == 39) {
-                dirx = 1;
-                this.map.x += dirx * this.speed * this.step;
+                this.map.x += this.speed * this.step;
+                //this.map.x += 6;
             }
             if (e.keyCode == 38) {
-                diry = -1;
-                this.map.y += diry * this.speed * this.step;
+                this.map.y -= this.speed * this.step;
+                //this.map.y -= 6;
             }
             if (e.keyCode == 40) {
-                diry = 1;
-                this.map.y += diry * this.speed * this.step;
+                this.map.y += this.speed * this.step;
+                //this.map.y += 6;
             }
 
             // clamp values
@@ -2358,6 +2308,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
             this.map.x = Math.ceil(this.map.x);
             this.map.y = Math.ceil(this.map.y);
+
+            //this.$emit('send', this.map.x, this.map.y);
+            //axios.get('/maps').then(response => {
+            // should be broadcasting the websocket event!?
+            //});
         },
 
         createCanvas: function createCanvas(context) {
@@ -2380,41 +2335,46 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         drawPlayer: function drawPlayer() {
             var ctx = this.ctx;
             var pimage = new Image();
-            //pimage.src = 'http://torax.outwar.com/images/maptile/YAH.gif';
-            pimage.src = 'https://dl.dropboxusercontent.com/content_link/FYzkCNnD6Y6RrfS76eVYnrNjNQVoO7yhhIqIhSroUsrN31TFRlig1gULBVW6V5jE/file';
-
+            pimage.src = 'http://i67.tinypic.com/15gblgz.gif';
             var x = this.screenX - this.pwidth / 2;
             var y = this.screenY - this.pheight / 2;
 
             pimage.onload = function () {
-                ctx.drawImage(pimage, x, y);
+                ctx.drawImage(pimage, x, y, pimage.width, pimage.height);
             };
         },
 
         drawAll: function drawAll() {
             var ctx = this.ctx;
-            ctx.clearRect(0, 0, this.width, this.height);
+            //ctx.clearRect(0, 0, this.width, this.height);
             this.drawMap();
             this.drawPlayer();
         },
 
         gameLoop: function gameLoop(timestamp) {
-            window.requestAnimationFrame(this.gameLoop);
             this.now = timestamp;
             this.step = (this.now - this.last) / 1000.0;
-            //this.step = Math.min(this.step, 0.25);
+            this.step = Math.min(this.step, 0.25);
             this.last = this.now;
-            this.previous;
+            //this.previous;
+            this.updatePlayer;
             this.cameraUpdate();
             this.drawAll();
-            //requestAnimationFrame(this.gameLoop);
+            requestAnimationFrame(this.gameLoop);
         }
-
     },
 
     created: function created() {
-        window.addEventListener('keyup', this.previous);
-        window.addEventListener('keydown', this.previous);
+        var _this = this;
+
+        addEventListener('keyup', this.updatePlayer);
+        addEventListener('keydown', this.updatePlayer);
+
+        // Elite-RPG World Websocket listen.
+        Echo.join('eliteworld').listen('PlayerMoving', function (e) {
+            _this.roomName = e.map.name;
+            console.log('room name: ' + _this.roomName);
+        });
     },
 
     mounted: function mounted() {
@@ -2425,7 +2385,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         this.createCanvas(ctx);
         this.cameraCreate();
         this.cameraFollow(this.mapData);
-        window.requestAnimationFrame(this.gameLoop);
+        requestAnimationFrame(this.gameLoop);
     }
 });
 
@@ -37553,10 +37513,10 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
   }, [_c('canvas', {
     ref: "mapCanvas",
     attrs: {
-      "width": 300,
-      "height": 300
+      "width": _vm.width,
+      "height": _vm.height
     }
-  }), _vm._v("\n    X: " + _vm._s(this.map.x) + " - Y: " + _vm._s(this.map.y) + "\n")])
+  }), _vm._v(" "), _c('div', [_c('small', [_vm._v("X: " + _vm._s(_vm.map.x) + " - Y: " + _vm._s(_vm.map.y))])])])
 },staticRenderFns: []}
 module.exports.render._withStripped = true
 if (false) {
@@ -37575,6 +37535,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "chat-log"
   }, _vm._l((_vm.items), function(item) {
     return _c('chat-message', {
+      key: item.id,
       attrs: {
         "item": item
       }

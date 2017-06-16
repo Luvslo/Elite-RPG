@@ -10,27 +10,31 @@
                 </div>
 
                 <div class="panel-body">
-                    <!-- Map.vue -->
-                    {{--
-                        v-for="map in maps"
-                        :key="map.id"
-                    --}}
-                    <elite-map
-                        v-for="map in maps"
-                        :key="map.id"
-                        :map="map"
-                        v-on:send="playerMove"
-                        v-bind:direction="direction"
-                        v-bind:step="step"
-                        @keyup.left="moveLeft"
-                        >
-                    </elite-map>
-                    <!-- PlayerMove.vue -->
-                    <!--<player-move
-                        v-on:send="playerMove"
-                        v-bind:direction="direction"
-                        >
-                    </player-move>-->
+
+
+                    <div class="col-md-6">
+                        <div class="row">
+                        <strong>Room Name:</strong>
+                        <!-- Map Component -->
+                        <elite-map
+                            v-for="map in maps"
+                            :key="map.id"
+                            :map="map"
+                            >
+                        </elite-map>
+                    </div>
+                    </div>
+
+                    <!-- Mobs Component -->
+                    <div class="col-md-4">
+                        <strong>Mobs:</strong>
+                    </div>
+                    <div class="col-md-2">
+                        <strong>Room Desc</strong>
+                    </div>
+                </div>
+
+
 
                 </div>
             </div>

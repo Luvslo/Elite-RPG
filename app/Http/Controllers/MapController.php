@@ -33,9 +33,10 @@ class MapController extends Controller
 
         $user = User::find(Auth::user()->id);
 
-        broadcast(new PlayerMoving($map, $user))->toOthers();
+        //event(new PlayerMoving($map, $user))->toOthers();
+        event(new PlayerMoving($map, $user));
 
-        return ['status' => 'OK'];
+        //return ['status' => 'OK'];
 
         //return response()->json([$map->image]);
     }

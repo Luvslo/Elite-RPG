@@ -34,16 +34,12 @@ window.Vue = require('vue');
          usersInRoom: [],
 
          // world
-         direction: '',
-         step: '',
          playersInWorld: [],
-         speed: 750,
          maps: [],
          x: 150,
          y: 150,
          src: '',
-         then: '',
-         now: '',
+         roomName: '',
 
      },
 
@@ -54,45 +50,6 @@ window.Vue = require('vue');
              this.items.push(item);
              axios.post('/messages', item).then(response => {
 
-             });
-         },
-
-         playerMove: function(direction, step) {
-
-             if (direction == 'left') {
-                 this.x -= this.speed * step
-             }
-             if (direction == 'right') {
-                 this.x += this.speed * step
-             }
-             if (direction == 'up') {
-                 this.y -= this.speed * step
-             }
-             if (direction == 'down') {
-                 this.y += this.speed * step
-             }
-
-             // don't let player leaves the world's boundary
-             if(this.x - 12 / 2 < 0){
-                 this.x = 12 / 2;
-             }
-             if(this.y - 12 / 2 < 0){
-                 this.y = 12 / 2;
-             }
-             if(this.x + 12 / 2 > this.maps.width){
-                 this.x = this.maps.width - 12 / 2;
-             }
-             if(this.y + 12 / 2 > this.maps.height){
-                 this.y = this.maps.height - 12 / 2;
-             }
-
-             this.maps = [];
-             this.maps.push({
-                 src: this.src,
-                 x: this.x,
-                 y: this.y,
-                 width: 384,
-                 height: 384,
              });
          },
 
@@ -108,39 +65,28 @@ window.Vue = require('vue');
                  });
                  this.src = response.data;
              });
-         }
+         },
      },
 
      created: function() {
 
-         axios.get('/messages').then(response => {
-             this.items = response.data;
-         });
-
+         // Elite-RPG World Socket Join/Leaving
          this.loadMap();
+         Echo.join('eliteworld')
+            .here((users) => {
+                this.playersInWorld = users;
+            })
+            .joining((user) => {
+                this.playersInWorld.push(user);
+            })
+            .leaving((user) => {
+                this.playersInWorld = this.playersInWorld.filter(u => u != user)
+            });
 
-         this.then = Date.now();
-
-         Echo.join('eliteworld').here((users) => {
-               this.playersInWorld = users;
-           }).joining((user) => {
-              this.playersInWorld.push(user);
-           }).leaving((user) => {
-              this.playersInWorld = this.playersInWorld.filter(u => u != user)
-           }).listen('PlayerMoving', (e) => {
-               var x = this.x;
-               var y = this.y;
-               this.maps = [];
-               this.maps.push({
-                   src: e.map.image,
-                   x: x,
-                   y: y,
-               });
-               console.log('broadcasing.');
-           });
-
-
-
+        // Chat
+        axios.get('/messages').then(response => {
+                this.items = response.data;
+        });
 
         Echo.join('chatroom')
              .here((users) => {
