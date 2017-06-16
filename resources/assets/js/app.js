@@ -22,7 +22,7 @@ window.Vue = require('vue');
 
  /* Elite-RPG Map */
  Vue.component('elite-map', require('./components/Map.vue'));
- //Vue.component('player-move', require('./components/PlayerMove.vue'));
+ Vue.component('test-map', require('./components/MapTest.vue'));
 
  const app = new Vue({
      el: '#app',

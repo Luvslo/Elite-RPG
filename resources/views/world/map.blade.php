@@ -13,7 +13,6 @@
 
 
                     <div class="col-md-6">
-                        <div class="row">
                         <strong>Room Name:</strong>
                         <!-- Map Component -->
                         <elite-map
@@ -22,7 +21,6 @@
                             :map="map"
                             >
                         </elite-map>
-                    </div>
                     </div>
 
                     <!-- Mobs Component -->
