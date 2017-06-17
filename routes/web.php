@@ -37,3 +37,5 @@ Route::get('maps', 'MapController@map')->name('maps');
 Route::get('/tmap', function() {
     return view('world.tmap');
 });
+
+Route::get('mobs/{id}/{x}/{y}', 'MobController@index');

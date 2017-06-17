@@ -12,6 +12,7 @@
         <!-- Mobs Component -->
         <div class="col-md-4">
             <strong>Mobs:</strong>
+            {{mob.name}} - {{mob.type}}
         </div>
         <div class="col-md-2">
             <strong>Room Desc</strong>
@@ -36,7 +37,7 @@
  */
 export default {
 
-    props: ['map'],
+    props: ['map', 'mob'],
 
     data() {
         return {
@@ -123,19 +124,15 @@ export default {
 
             if (e.keyCode == 37) {
                 this.map.x -= this.speed * this.delta;
-                //this.map.x -= 6;
             }
             if (e.keyCode == 39) {
                 this.map.x += this.speed * this.delta;
-                //this.map.x += 6;
             }
             if (e.keyCode == 38) {
                 this.map.y -= this.speed * this.delta;
-                //this.map.y -= 6;
             }
             if (e.keyCode == 40) {
                 this.map.y += this.speed * this.delta;
-                //this.map.y += 6;
             }
 
             // clamp values
@@ -190,7 +187,6 @@ export default {
 
         gameLoop: function(timestamp) {
             this.now = timestamp;
-            //this.now = Date.now();
             this.delta = (this.now - this.then) / 1000.0;
             this.delta = Math.min(this.delta, 0.25);
             this.then = this.now;

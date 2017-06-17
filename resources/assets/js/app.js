@@ -45,6 +45,8 @@ window.Vue = require('vue');
          src: '',
          roomName: '',
 
+         mobs: [],
+
      },
 
      methods: {
@@ -57,22 +59,38 @@ window.Vue = require('vue');
              });
          },
 
-         // TODO: Seperate maps[] and players[] 
+         // TODO: Seperate maps[] and players[]
          loadMap: function() {
              axios.get('/loadmap').then(response => {
                  this.maps = [];
                  this.maps.push({
+                     id: response.data.id,
                      src: response.data.image,
                      desc: response.data.description,
                      name: response.data.name,
                      x: this.x,
                      y: this.y,
                      width: 384,
-                     height: 384,
+                     height: 384
                  });
                  this.src = response.data;
+
+                 this.loadMobs(this.maps.id, this.x, this.y);
+
              });
          },
+
+         loadMobs: function(id, x, y) {
+             axios.get('/mobs/'+id+'/'+x+'/'+y).then(response => {
+                 this.mobs = [];
+                 this.mobs.push({
+                     name: response.data.name,
+                     type: response.data.type,
+                     x: response.data.x,
+                     y: response.data.y
+                 });
+             });
+         }
      },
 
      created: function() {

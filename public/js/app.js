@@ -1147,7 +1147,9 @@ var app = new Vue({
         x: 150,
         y: 150,
         src: '',
-        roomName: ''
+        roomName: '',
+
+        mobs: []
 
     },
 
@@ -1159,13 +1161,14 @@ var app = new Vue({
             axios.post('/messages', item).then(function (response) {});
         },
 
-        // TODO: Seperate maps[] and players[] 
+        // TODO: Seperate maps[] and players[]
         loadMap: function loadMap() {
             var _this = this;
 
             axios.get('/loadmap').then(function (response) {
                 _this.maps = [];
                 _this.maps.push({
+                    id: response.data.id,
                     src: response.data.image,
                     desc: response.data.description,
                     name: response.data.name,
@@ -1175,40 +1178,56 @@ var app = new Vue({
                     height: 384
                 });
                 _this.src = response.data;
+
+                _this.loadMobs(_this.maps.id, _this.x, _this.y);
+            });
+        },
+
+        loadMobs: function loadMobs(id, x, y) {
+            var _this2 = this;
+
+            axios.get('/mobs/' + id + '/' + x + '/' + y).then(function (response) {
+                _this2.mobs = [];
+                _this2.mobs.push({
+                    name: response.data.name,
+                    type: response.data.type,
+                    x: response.data.x,
+                    y: response.data.y
+                });
             });
         }
     },
 
     created: function created() {
-        var _this2 = this;
+        var _this3 = this;
 
         // Elite-RPG World Socket Join/Leaving
         this.loadMap();
         Echo.join('eliteworld').here(function (users) {
-            _this2.playersInWorld = users;
+            _this3.playersInWorld = users;
         }).joining(function (user) {
-            _this2.playersInWorld.push(user);
+            _this3.playersInWorld.push(user);
         }).leaving(function (user) {
-            _this2.playersInWorld = _this2.playersInWorld.filter(function (u) {
+            _this3.playersInWorld = _this3.playersInWorld.filter(function (u) {
                 return u != user;
             });
         });
 
         // Chat
         axios.get('/messages').then(function (response) {
-            _this2.items = response.data;
+            _this3.items = response.data;
         });
 
         Echo.join('chatroom').here(function (users) {
-            _this2.usersInRoom = users;
+            _this3.usersInRoom = users;
         }).joining(function (user) {
-            _this2.usersInRoom.push(user);
+            _this3.usersInRoom.push(user);
         }).leaving(function (user) {
-            _this2.usersInRoom = _this2.usersInRoom.filter(function (u) {
+            _this3.usersInRoom = _this3.usersInRoom.filter(function (u) {
                 return u != user;
             });
         }).listen('MessagePosted', function (e) {
-            _this2.items.push({
+            _this3.items.push({
                 message: e.message.message,
                 user: e.user
             });
@@ -2207,6 +2226,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 
 /**
@@ -2221,7 +2241,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
  */
 /* harmony default export */ __webpack_exports__["default"] = ({
 
-    props: ['map'],
+    props: ['map', 'mob'],
 
     data: function data() {
         return {
@@ -2306,19 +2326,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
             if (e.keyCode == 37) {
                 this.map.x -= this.speed * this.delta;
-                //this.map.x -= 6;
             }
             if (e.keyCode == 39) {
                 this.map.x += this.speed * this.delta;
-                //this.map.x += 6;
             }
             if (e.keyCode == 38) {
                 this.map.y -= this.speed * this.delta;
-                //this.map.y -= 6;
             }
             if (e.keyCode == 40) {
                 this.map.y += this.speed * this.delta;
-                //this.map.y += 6;
             }
 
             // clamp values
@@ -2372,7 +2388,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
         gameLoop: function gameLoop(timestamp) {
             this.now = timestamp;
-            //this.now = Date.now();
             this.delta = (this.now - this.then) / 1000.0;
             this.delta = Math.min(this.delta, 0.25);
             this.then = this.now;
@@ -37858,12 +37873,10 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       "width": _vm.width,
       "height": _vm.height
     }
-  }), _vm._v(" "), _c('div', [_c('small', [_vm._v("X: " + _vm._s(_vm.map.x) + " - Y: " + _vm._s(_vm.map.y))])])]), _vm._v(" "), _vm._m(0), _vm._v(" "), _vm._m(1)])
-},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
+  }), _vm._v(" "), _c('div', [_c('small', [_vm._v("X: " + _vm._s(_vm.map.x) + " - Y: " + _vm._s(_vm.map.y))])])]), _vm._v(" "), _c('div', {
     staticClass: "col-md-4"
-  }, [_c('strong', [_vm._v("Mobs:")])])
-},function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  }, [_c('strong', [_vm._v("Mobs:")]), _vm._v("\n        " + _vm._s(_vm.mob.name) + " - " + _vm._s(_vm.mob.type) + "\n    ")]), _vm._v(" "), _vm._m(0)])
+},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
   return _c('div', {
     staticClass: "col-md-2"
   }, [_c('strong', [_vm._v("Room Desc")])])
