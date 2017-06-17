@@ -22,6 +22,7 @@ window.Vue = require('vue');
 
  /* Elite-RPG Map */
  Vue.component('elite-map', require('./components/Map.vue'));
+ Vue.component('elite-mobs', require('./components/world/Mobs.vue'));
  /* Admin Test Map */
  Vue.component('test-map', require('./components/MapTest.vue'));
 
@@ -64,39 +65,29 @@ window.Vue = require('vue');
              axios.get('/loadmap').then(response => {
                  this.maps = [];
                  this.maps.push({
-                     id: response.data.id,
                      src: response.data.image,
-                     desc: response.data.description,
-                     name: response.data.name,
                      x: this.x,
                      y: this.y,
                      width: 384,
                      height: 384
                  });
-                 this.src = response.data;
-
-                 this.loadMobs(this.maps.id, this.x, this.y);
-
              });
          },
 
-         loadMobs: function(id, x, y) {
-             axios.get('/mobs/'+id+'/'+x+'/'+y).then(response => {
-                 this.mobs = [];
-                 this.mobs.push({
-                     name: response.data.name,
-                     type: response.data.type,
-                     x: response.data.x,
-                     y: response.data.y
-                 });
-             });
+         loadMobs: function() {
          }
      },
 
      created: function() {
 
-         // Elite-RPG World Socket Join/Leaving
          this.loadMap();
+
+         axios.get('/mobs/1/150/150').then(response => {
+            // this.mobs.push(response.data);
+            console.log(response.data);
+         });
+
+         // Elite-RPG websocket - 'pusher'
          Echo.join('eliteworld')
             .here((users) => {
                 this.playersInWorld = users;

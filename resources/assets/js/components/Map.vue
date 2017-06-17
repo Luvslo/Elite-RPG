@@ -6,17 +6,11 @@
             <canvas ref="mapCanvas" :width="width" :height="height"></canvas>
             <div>
                 <small>X: {{ map.x }} - Y: {{ map.y }}</small>
-            </div >
+            </div>
         </div>
+        <elite-mobs>
 
-        <!-- Mobs Component -->
-        <div class="col-md-4">
-            <strong>Mobs:</strong>
-            {{mob.name}} - {{mob.type}}
-        </div>
-        <div class="col-md-2">
-            <strong>Room Desc</strong>
-        </div>
+        </elite-mobs>
     </div>
     </div>
 </template>
@@ -37,7 +31,7 @@
  */
 export default {
 
-    props: ['map', 'mob'],
+    props: ['map'],
 
     data() {
         return {

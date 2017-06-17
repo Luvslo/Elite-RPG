@@ -17,7 +17,12 @@
                         :map="map"
                         >
                     </elite-map>
-
+                    <elite-mobs
+                        v-for="mob in mobs"
+                        :key="mon.id"
+                        :mob="mob"
+                        >
+                    </elite-mobs>
 
 
                 </div>
