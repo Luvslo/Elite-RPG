@@ -24,7 +24,7 @@ class MapController extends Controller
     public function show()
     {
         $map = Map::find(1);
-        return response()->json($map->image);
+        return response()->json($map);
     }
 
     public function map()

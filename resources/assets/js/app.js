@@ -22,8 +22,12 @@ window.Vue = require('vue');
 
  /* Elite-RPG Map */
  Vue.component('elite-map', require('./components/Map.vue'));
+ /* Admin Test Map */
  Vue.component('test-map', require('./components/MapTest.vue'));
 
+ /**
+  * @todo - restructure this.
+  */
  const app = new Vue({
      el: '#app',
 
@@ -53,11 +57,14 @@ window.Vue = require('vue');
              });
          },
 
+         // TODO: Seperate maps[] and players[] 
          loadMap: function() {
              axios.get('/loadmap').then(response => {
                  this.maps = [];
                  this.maps.push({
-                     src: response.data,
+                     src: response.data.image,
+                     desc: response.data.description,
+                     name: response.data.name,
                      x: this.x,
                      y: this.y,
                      width: 384,

@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 64);
+/******/ 	return __webpack_require__(__webpack_require__.s = 69);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -505,7 +505,7 @@ if (typeof DEBUG !== 'undefined' && DEBUG) {
   ) }
 }
 
-var listToStyles = __webpack_require__(61)
+var listToStyles = __webpack_require__(66)
 
 /*
 type StyleObject = {
@@ -805,7 +805,7 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 module.exports = defaults;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(45)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(47)))
 
 /***/ }),
 /* 5 */
@@ -1109,9 +1109,9 @@ module.exports = g;
  * building robust, powerful web applications using Vue and Laravel.
  */
 
-__webpack_require__(36);
+__webpack_require__(37);
 
-window.Vue = __webpack_require__(62);
+window.Vue = __webpack_require__(67);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -1119,15 +1119,19 @@ window.Vue = __webpack_require__(62);
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-Vue.component('example', __webpack_require__(50));
-Vue.component('chat-message', __webpack_require__(49));
-Vue.component('chat-log', __webpack_require__(48));
-Vue.component('chat-compose', __webpack_require__(47));
+Vue.component('example', __webpack_require__(52));
+Vue.component('chat-message', __webpack_require__(51));
+Vue.component('chat-log', __webpack_require__(50));
+Vue.component('chat-compose', __webpack_require__(49));
 
 /* Elite-RPG Map */
-Vue.component('elite-map', __webpack_require__(51));
-//Vue.component('player-move', require('./components/PlayerMove.vue'));
+Vue.component('elite-map', __webpack_require__(53));
+/* Admin Test Map */
+Vue.component('test-map', __webpack_require__(54));
 
+/**
+ * @todo - restructure this.
+ */
 var app = new Vue({
     el: '#app',
 
@@ -1155,13 +1159,16 @@ var app = new Vue({
             axios.post('/messages', item).then(function (response) {});
         },
 
+        // TODO: Seperate maps[] and players[] 
         loadMap: function loadMap() {
             var _this = this;
 
             axios.get('/loadmap').then(function (response) {
                 _this.maps = [];
                 _this.maps.push({
-                    src: response.data,
+                    src: response.data.image,
+                    desc: response.data.description,
+                    name: response.data.name,
                     x: _this.x,
                     y: _this.y,
                     width: 384,
@@ -2185,6 +2192,21 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /**
@@ -2203,7 +2225,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
     data: function data() {
         return {
-
             // canvas
             src: '',
             ctx: '',
@@ -2226,9 +2247,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             screenY: 0,
 
             // delta
+            then: 0,
             now: 0,
-            last: 0,
-            step: 0,
+            delta: 0,
 
             // NPC
             roomName: ''
@@ -2284,30 +2305,31 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         updatePlayer: function updatePlayer(e) {
 
             if (e.keyCode == 37) {
-                this.map.x -= this.speed * this.step;
+                this.map.x -= this.speed * this.delta;
                 //this.map.x -= 6;
             }
             if (e.keyCode == 39) {
-                this.map.x += this.speed * this.step;
+                this.map.x += this.speed * this.delta;
                 //this.map.x += 6;
             }
             if (e.keyCode == 38) {
-                this.map.y -= this.speed * this.step;
+                this.map.y -= this.speed * this.delta;
                 //this.map.y -= 6;
             }
             if (e.keyCode == 40) {
-                this.map.y += this.speed * this.step;
+                this.map.y += this.speed * this.delta;
                 //this.map.y += 6;
             }
 
             // clamp values
             var maxX = this.map.width - this.pwidth / 2;
             var maxY = this.map.height - this.pheight / 2;
+
             this.map.x = Math.max(0, Math.min(this.map.x, maxX));
             this.map.y = Math.max(0, Math.min(this.map.y, maxY));
 
-            this.map.x = Math.ceil(this.map.x);
-            this.map.y = Math.ceil(this.map.y);
+            this.map.x = Math.round(this.map.x);
+            this.map.y = Math.round(this.map.y);
 
             //this.$emit('send', this.map.x, this.map.y);
             //axios.get('/maps').then(response => {
@@ -2319,17 +2341,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             return this.ctx = context;
         },
 
-        drawMap: function drawMap() {
+        drawMap: function drawMap(layer) {
             var ctx = this.ctx;
             var image = new Image();
-            image.src = this.map.src;
-
             var x = this.camX;
             var y = this.camY;
-
             image.onload = function () {
                 ctx.drawImage(image, x, y, this.width, this.height, 0, 0, this.width, this.height);
             };
+            image.src = this.map.src;
         },
 
         drawPlayer: function drawPlayer() {
@@ -2338,7 +2358,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             pimage.src = 'http://i67.tinypic.com/15gblgz.gif';
             var x = this.screenX - this.pwidth / 2;
             var y = this.screenY - this.pheight / 2;
-
             pimage.onload = function () {
                 ctx.drawImage(pimage, x, y, pimage.width, pimage.height);
             };
@@ -2346,17 +2365,17 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
         drawAll: function drawAll() {
             var ctx = this.ctx;
-            //ctx.clearRect(0, 0, this.width, this.height);
+            ctx.clearRect(0, 0, this.width, this.height);
             this.drawMap();
             this.drawPlayer();
         },
 
         gameLoop: function gameLoop(timestamp) {
             this.now = timestamp;
-            this.step = (this.now - this.last) / 1000.0;
-            this.step = Math.min(this.step, 0.25);
-            this.last = this.now;
-            //this.previous;
+            //this.now = Date.now();
+            this.delta = (this.now - this.then) / 1000.0;
+            this.delta = Math.min(this.delta, 0.25);
+            this.then = this.now;
             this.updatePlayer;
             this.cameraUpdate();
             this.drawAll();
@@ -2395,10 +2414,286 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_laravel_echo__ = __webpack_require__(43);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+/**
+ * Rough Draft for the way I am working towards.
+ *
+ * I want to use MONGO DB to store each maps JSON file (cols, rows, layers, ect)
+ * and when the page loads (ill use axios first) to pull the players/maps data.
+ *
+ * Eventually I will create a socket connection to pull data that way -
+ * interactive PVP battles!
+ */
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    data: function data() {
+        return {
+            // canvas
+            context: '',
+            width: 300,
+            height: 300,
+
+            maps: [],
+            players: [],
+            camera: [],
+
+            layers: [[3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 3, 3, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 3, 3, 3, 3, 1, 1, 2, 3, 3, 3, 3, 3, 3], [4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 5, 0, 0, 0, 0, 0, 5, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 3, 3, 3, 3, 3, 3, 3]],
+
+            following: '',
+            screenX: 0,
+            screenY: 0,
+            viewX: 0,
+            viewY: 0,
+
+            now: 0,
+            last: 0,
+            delta: 0,
+            speed: 256
+
+        };
+    },
+
+
+    methods: {
+
+        createCanvas: function createCanvas(context) {
+            this.context = context;
+        },
+
+        createData: function createData() {
+            this.maps = {
+                src: 'http://mozdevs.github.io/gamedev-js-tiles/assets/tiles.png',
+                cols: 12,
+                rows: 12,
+                tsize: 64
+            };
+
+            var x = this.maps.cols * this.maps.tsize / 2 - this.maps.tsize / 2;
+            var y = this.maps.rows * this.maps.tsize / 2 - this.maps.tsize / 2;
+
+            this.players = {
+                src: 'http://i67.tinypic.com/15gblgz.gif',
+                x: x,
+                y: y,
+                viewY: 0,
+                viewX: 0,
+                speed: 300
+            };
+        },
+
+        createCamera: function createCamera() {
+            this.camera = {
+                x: 0,
+                y: 0,
+                width: this.width,
+                height: this.height,
+                maxX: this.maps.cols * this.maps.tsize - this.width,
+                maxY: this.maps.rows * this.maps.tsize - this.height
+            };
+        },
+
+        followCamera: function followCamera(player) {
+            this.following = player;
+            this.viewX = 0;
+            this.viewY = 0;
+        },
+
+        updateCamera: function updateCamera() {
+
+            //this.screenX = this.camera.width / 2;
+            //this.screenY = this.camera.height / 2;
+
+            this.viewX = this.width / 2;
+            this.viewY = this.height / 2;
+
+            this.camera.x = this.following.x - this.camera.width / 2;
+            this.camera.y = this.following.y - this.camera.height / 2;
+
+            this.camera.x = Math.max(0, Math.min(this.camera.x, this.camera.maxX));
+            this.camera.y = Math.max(0, Math.min(this.camera.y, this.camera.maxY));
+
+            if (this.following.x < this.camera.width / 2 || this.following.x > this.maxX + this.camera.width / 2) {
+                this.viewX = this.following.x - this.camera.x;
+            }
+            if (this.following.y < this.camera.height / 2 || this.following.y > this.maxY + this.camera.height / 2) {
+                this.viewY = this.following.y - this.camera.y;
+            }
+        },
+
+        getTile: function getTile(layer, col, row) {
+            return this.layers[layer][row * this.maps.cols + col];
+        },
+
+        drawGrid: function drawGrid() {
+            var x, y;
+            var ctx = this.context;
+            var width = this.maps.cols * this.maps.tsize;
+            var height = this.maps.rows * this.maps.tsize;
+            for (var r = 0; r < this.maps.rows; r++) {
+                x = -this.camera.x;
+                y = r * this.maps.tsize - this.camera.y;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+            for (var c = 0; c < this.maps.cols; c++) {
+                x = c * this.maps.tsize - this.camera.x;
+                y = -this.camera.y;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+        },
+
+        drawMap: function drawMap(layer) {
+
+            var ctx = this.context;
+            var tsize = this.maps.tsize;
+            var image = new Image();
+
+            // TODO: put this into a function ->
+            var startCol = Math.floor(this.camera.x / tsize);
+            var endCol = startCol + this.camera.width / tsize;
+            var startRow = Math.floor(this.camera.y / tsize);
+            var endRow = startRow + this.camera.height / tsize;
+            var offsetX = -this.camera.x + startCol * tsize;
+            var offsetY = -this.camera.y + startRow * tsize;
+
+            for (var c = startCol; c <= endCol; c++) {
+                for (var r = startRow; r <= endRow; r++) {
+                    var tile = this.getTile(layer, c, r);
+                    var x = (c - startCol) * tsize + offsetX;
+                    var y = (r - startRow) * tsize + offsetY;
+                    if (tile != 0) {
+                        ctx.drawImage(image, (tile - 1) * tsize, 0, tsize, tsize, Math.round(x), Math.round(y), tsize, tsize);
+                        image.src = this.maps.src;
+                    }
+                }
+            }
+        },
+
+        drawPlayer: function drawPlayer() {
+            var ctx = this.context;
+            var pimage = new Image();
+
+            var x = this.viewX - this.maps.tsize / 2;
+            var y = this.viewY - this.maps.tsize / 2;
+
+            pimage.onload = function () {
+                ctx.drawImage(pimage, x, y);
+            };
+            pimage.src = this.players.src;
+        },
+
+        updatePlayer: function updatePlayer(e) {
+            if (e) {
+                if (e.keyCode === 37) {
+                    //console.log('moving left..');
+                    this.players.x -= this.speed * this.delta;
+                }
+                if (e.keyCode === 39) {
+                    //console.log('moving right');
+                    this.players.x += this.speed * this.delta;
+                }
+                if (e.keyCode === 38) {
+                    //console.log('moving up');
+                    this.players.y -= this.speed * this.delta;
+                }
+                if (e.keyCode === 40) {
+                    //console.log('moving down');
+                    this.players.y += this.speed * this.delta;
+                }
+            }
+            // clamp values.
+            var maxX = this.maps.cols * this.maps.tsize;
+            var maxY = this.maps.rows * this.maps.tsize;
+            this.players.x = Math.max(0, Math.min(this.players.x, maxX));
+            this.players.y = Math.max(0, Math.min(this.players.y, maxY));
+
+            console.log('player x: ' + this.players.x);
+        },
+
+        drawGame: function drawGame() {
+            var ctx = this.context;
+            ctx.clearRect(0, 0, this.width, this.height);
+            this.drawMap(0);
+            this.drawMap(1);
+            this.drawPlayer();
+            //this.drawGrid();
+        },
+
+        updateGame: function updateGame() {
+            this.updatePlayer();
+            this.updateCamera();
+        },
+
+        animateGame: function animateGame(timestamp) {
+            this.now = timestamp;
+            this.delta = (this.now - this.last) / 1000.0;
+            this.delta = Math.min(this.delta, 0.25);
+            this.last = this.now;
+
+            // Update player & camera
+            this.updateGame();
+
+            // Draw map & player
+            this.drawGame();
+
+            // Animate (loop)
+            requestAnimationFrame(this.animateGame);
+        },
+
+        initGame: function initGame() {
+            // Create map & player array
+            this.createData();
+
+            // Set up the camera
+            this.createCamera();
+            this.followCamera(this.players);
+
+            // Game animation loop.
+            requestAnimationFrame(this.animateGame);
+        }
+
+    },
+
+    created: function created() {
+        addEventListener('keyup', this.updatePlayer);
+        addEventListener('keydown', this.updatePlayer);
+    },
+
+    mounted: function mounted() {
+        // Canvas init.
+        var canvas = this.$refs.testCanvas;
+        var context = canvas.getContext('2d');
+        this.createCanvas(context);
+
+        this.initGame();
+    }
+});
+
+/***/ }),
+/* 37 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_laravel_echo__ = __webpack_require__(45);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_laravel_echo___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_laravel_echo__);
 
-window._ = __webpack_require__(44);
+window._ = __webpack_require__(46);
 
 /**
  * We'll load jQuery and the Bootstrap jQuery plugin which provides support
@@ -2407,9 +2702,9 @@ window._ = __webpack_require__(44);
  */
 
 try {
-  window.$ = window.jQuery = __webpack_require__(42);
+  window.$ = window.jQuery = __webpack_require__(44);
 
-  __webpack_require__(37);
+  __webpack_require__(38);
 } catch (e) {}
 
 /**
@@ -2444,7 +2739,7 @@ if (token) {
 
 
 
-window.Pusher = __webpack_require__(46);
+window.Pusher = __webpack_require__(48);
 
 window.Echo = new __WEBPACK_IMPORTED_MODULE_0_laravel_echo___default.a({
   broadcaster: 'pusher',
@@ -2454,7 +2749,7 @@ window.Echo = new __WEBPACK_IMPORTED_MODULE_0_laravel_echo___default.a({
 });
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports) {
 
 /*!
@@ -4837,35 +5132,42 @@ if (typeof jQuery === 'undefined') {
 
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(2)();
 exports.push([module.i, "\n.elite-map {\n}\n\n", ""]);
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(2)();
 exports.push([module.i, "\n.chat-log .chat-message:nth-child(even) {\n    background-color: #ccc;\n}\n", ""]);
 
 /***/ }),
-/* 40 */
+/* 41 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(2)();
+exports.push([module.i, "\n.test-map {\n}\n\n", ""]);
+
+/***/ }),
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(2)();
 exports.push([module.i, "\n.chat-composer {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n}\n.chat-composer input {\n    -webkit-box-flex: 1;\n        -ms-flex: 1 auto;\n            flex: 1 auto;\n}\n.chat-composer button {\n    border-radius: 0;\n}\n", ""]);
 
 /***/ }),
-/* 41 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(2)();
 exports.push([module.i, "\n.chat-message {\n    padding: 1rem;\n}\n.chat-message > p {\n    margin-bottom: .5rem;\n}\n\n", ""]);
 
 /***/ }),
-/* 42 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -15125,7 +15427,7 @@ return jQuery;
 
 
 /***/ }),
-/* 43 */
+/* 45 */
 /***/ (function(module, exports) {
 
 var asyncGenerator = function () {
@@ -15898,7 +16200,7 @@ var Echo = function () {
 module.exports = Echo;
 
 /***/ }),
-/* 44 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, module) {var __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -32987,10 +33289,10 @@ module.exports = Echo;
   }
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10), __webpack_require__(63)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10), __webpack_require__(68)(module)))
 
 /***/ }),
-/* 45 */
+/* 47 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -33180,7 +33482,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 46 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -37318,18 +37620,18 @@ return /******/ (function(modules) { // webpackBootstrap
 ;
 
 /***/ }),
-/* 47 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
 /* styles */
-__webpack_require__(59)
+__webpack_require__(64)
 
 var Component = __webpack_require__(1)(
   /* script */
   __webpack_require__(31),
   /* template */
-  __webpack_require__(55),
+  __webpack_require__(59),
   /* scopeId */
   null,
   /* cssModules */
@@ -37356,18 +37658,18 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 48 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
 /* styles */
-__webpack_require__(58)
+__webpack_require__(62)
 
 var Component = __webpack_require__(1)(
   /* script */
   __webpack_require__(32),
   /* template */
-  __webpack_require__(53),
+  __webpack_require__(56),
   /* scopeId */
   null,
   /* cssModules */
@@ -37394,18 +37696,18 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 49 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
 /* styles */
-__webpack_require__(60)
+__webpack_require__(65)
 
 var Component = __webpack_require__(1)(
   /* script */
   __webpack_require__(33),
   /* template */
-  __webpack_require__(56),
+  __webpack_require__(60),
   /* scopeId */
   null,
   /* cssModules */
@@ -37432,14 +37734,14 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 50 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
   /* script */
   __webpack_require__(34),
   /* template */
-  __webpack_require__(54),
+  __webpack_require__(57),
   /* scopeId */
   null,
   /* cssModules */
@@ -37466,18 +37768,18 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 51 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
 /* styles */
-__webpack_require__(57)
+__webpack_require__(61)
 
 var Component = __webpack_require__(1)(
   /* script */
   __webpack_require__(35),
   /* template */
-  __webpack_require__(52),
+  __webpack_require__(55),
   /* scopeId */
   null,
   /* cssModules */
@@ -37504,20 +37806,68 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 52 */
+/* 54 */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+/* styles */
+__webpack_require__(63)
+
+var Component = __webpack_require__(1)(
+  /* script */
+  __webpack_require__(36),
+  /* template */
+  __webpack_require__(58),
+  /* scopeId */
+  null,
+  /* cssModules */
+  null
+)
+Component.options.__file = "/home/vagrant/Code/Elite/resources/assets/js/components/MapTest.vue"
+if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key !== "__esModule"})) {console.error("named exports are not supported in *.vue files.")}
+if (Component.options.functional) {console.error("[vue-loader] MapTest.vue: functional components are not supported with templates, they should use render functions.")}
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-548fe9c3", Component.options)
+  } else {
+    hotAPI.reload("data-v-548fe9c3", Component.options)
+  }
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
   return _c('div', {
     staticClass: "elite-map"
-  }, [_c('canvas', {
+  }, [_c('div', {
+    staticClass: "col-md-6"
+  }, [_c('strong', [_vm._v("Room Name: " + _vm._s(_vm.map.name))]), _vm._v(" "), _c('canvas', {
     ref: "mapCanvas",
     attrs: {
       "width": _vm.width,
       "height": _vm.height
     }
-  }), _vm._v(" "), _c('div', [_c('small', [_vm._v("X: " + _vm._s(_vm.map.x) + " - Y: " + _vm._s(_vm.map.y))])])])
-},staticRenderFns: []}
+  }), _vm._v(" "), _c('div', [_c('small', [_vm._v("X: " + _vm._s(_vm.map.x) + " - Y: " + _vm._s(_vm.map.y))])])]), _vm._v(" "), _vm._m(0), _vm._v(" "), _vm._m(1)])
+},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "col-md-4"
+  }, [_c('strong', [_vm._v("Mobs:")])])
+},function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "col-md-2"
+  }, [_c('strong', [_vm._v("Room Desc")])])
+}]}
 module.exports.render._withStripped = true
 if (false) {
   module.hot.accept()
@@ -37527,7 +37877,7 @@ if (false) {
 }
 
 /***/ }),
-/* 53 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -37551,7 +37901,7 @@ if (false) {
 }
 
 /***/ }),
-/* 54 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -37580,7 +37930,33 @@ if (false) {
 }
 
 /***/ }),
-/* 55 */
+/* 58 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "test-map"
+  }, [_vm._m(0), _vm._v(" "), _c('canvas', {
+    ref: "testCanvas",
+    attrs: {
+      "id": "testCanvas",
+      "width": _vm.width,
+      "height": _vm.height
+    }
+  })])
+},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', [_c('strong', [_vm._v("Elite RPG Map Test")])])
+}]}
+module.exports.render._withStripped = true
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-548fe9c3", module.exports)
+  }
+}
+
+/***/ }),
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -37626,7 +38002,7 @@ if (false) {
 }
 
 /***/ }),
-/* 56 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -37643,13 +38019,13 @@ if (false) {
 }
 
 /***/ }),
-/* 57 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(38);
+var content = __webpack_require__(39);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
@@ -37669,13 +38045,13 @@ if(false) {
 }
 
 /***/ }),
-/* 58 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(39);
+var content = __webpack_require__(40);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
@@ -37695,13 +38071,39 @@ if(false) {
 }
 
 /***/ }),
-/* 59 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(40);
+var content = __webpack_require__(41);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var update = __webpack_require__(3)("5aec3506", content, false);
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../node_modules/css-loader/index.js!../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"id\":\"data-v-548fe9c3\",\"scoped\":false,\"hasInlineConfig\":true}!../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./MapTest.vue", function() {
+     var newContent = require("!!../../../../node_modules/css-loader/index.js!../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"id\":\"data-v-548fe9c3\",\"scoped\":false,\"hasInlineConfig\":true}!../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./MapTest.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 64 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(42);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
@@ -37721,13 +38123,13 @@ if(false) {
 }
 
 /***/ }),
-/* 60 */
+/* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(41);
+var content = __webpack_require__(43);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
@@ -37747,7 +38149,7 @@ if(false) {
 }
 
 /***/ }),
-/* 61 */
+/* 66 */
 /***/ (function(module, exports) {
 
 /**
@@ -37780,7 +38182,7 @@ module.exports = function listToStyles (parentId, list) {
 
 
 /***/ }),
-/* 62 */
+/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -47478,7 +47880,7 @@ module.exports = Vue$3;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
 
 /***/ }),
-/* 63 */
+/* 68 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -47506,7 +47908,7 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 64 */
+/* 69 */
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(11);

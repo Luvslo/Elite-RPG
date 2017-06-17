@@ -11,26 +11,12 @@
 
                 <div class="panel-body">
 
-
-                    <div class="col-md-6">
-                        <strong>Room Name:</strong>
-                        <!-- Map Component -->
-                        <elite-map
-                            v-for="map in maps"
-                            :key="map.id"
-                            :map="map"
-                            >
-                        </elite-map>
-                    </div>
-
-                    <!-- Mobs Component -->
-                    <div class="col-md-4">
-                        <strong>Mobs:</strong>
-                    </div>
-                    <div class="col-md-2">
-                        <strong>Room Desc</strong>
-                    </div>
-                </div>
+                    <elite-map
+                        v-for="map in maps"
+                        :key="map.id"
+                        :map="map"
+                        >
+                    </elite-map>
 
 
 

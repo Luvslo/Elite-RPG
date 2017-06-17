@@ -11,8 +11,6 @@
                     <!-- Test Map Component -->
                     <test-map>
 
-
-
                     </test-map>
 
                 </div>

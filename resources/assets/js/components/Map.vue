@@ -1,11 +1,26 @@
 <template>
     <div class="elite-map">
-        <canvas ref="mapCanvas" :width="width" :height="height"></canvas>
-        <div>
-            <small>X: {{ map.x }} - Y: {{ map.y }}</small>
+        <div class="col-md-6">
+            <strong>Room Name: {{ map.name }}</strong>
+            <!-- Map Component -->
+            <canvas ref="mapCanvas" :width="width" :height="height"></canvas>
+            <div>
+                <small>X: {{ map.x }} - Y: {{ map.y }}</small>
+            </div >
+        </div>
+
+        <!-- Mobs Component -->
+        <div class="col-md-4">
+            <strong>Mobs:</strong>
+        </div>
+        <div class="col-md-2">
+            <strong>Room Desc</strong>
         </div>
     </div>
+    </div>
 </template>
+
+
 <script>
 
 
@@ -25,7 +40,6 @@ export default {
 
     data() {
         return {
-
             // canvas
             src: '',
             ctx: '',
@@ -48,9 +62,9 @@ export default {
             screenY: 0,
 
             // delta
+            then: 0,
             now: 0,
-            last: 0,
-            step: 0,
+            delta: 0,
 
             // NPC
             roomName: '',
@@ -108,30 +122,31 @@ export default {
         updatePlayer: function (e) {
 
             if (e.keyCode == 37) {
-                this.map.x -= this.speed * this.step;
+                this.map.x -= this.speed * this.delta;
                 //this.map.x -= 6;
             }
             if (e.keyCode == 39) {
-                this.map.x += this.speed * this.step;
+                this.map.x += this.speed * this.delta;
                 //this.map.x += 6;
             }
             if (e.keyCode == 38) {
-                this.map.y -= this.speed * this.step;
+                this.map.y -= this.speed * this.delta;
                 //this.map.y -= 6;
             }
             if (e.keyCode == 40) {
-                this.map.y += this.speed * this.step;
+                this.map.y += this.speed * this.delta;
                 //this.map.y += 6;
             }
 
             // clamp values
             var maxX = this.map.width - (this.pwidth / 2);
             var maxY = this.map.height - (this.pheight / 2);
+
             this.map.x = Math.max(0, Math.min(this.map.x, maxX));
             this.map.y = Math.max(0, Math.min(this.map.y, maxY));
 
-            this.map.x = Math.ceil(this.map.x);
-            this.map.y = Math.ceil(this.map.y);
+            this.map.x = Math.round(this.map.x);
+            this.map.y = Math.round(this.map.y);
 
             //this.$emit('send', this.map.x, this.map.y);
             //axios.get('/maps').then(response => {
@@ -144,17 +159,15 @@ export default {
             return this.ctx = context;
         },
 
-        drawMap: function() {
+        drawMap: function(layer) {
             var ctx = this.ctx;
             var image = new Image();
-            image.src = this.map.src;
-
             var x = this.camX;
             var y = this.camY;
-
             image.onload = function() {
                 ctx.drawImage(image, x, y, this.width, this.height, 0, 0, this.width, this.height);
             }
+            image.src = this.map.src;
         },
 
         drawPlayer: function() {
@@ -163,7 +176,6 @@ export default {
             pimage.src = 'http://i67.tinypic.com/15gblgz.gif';
             var x = this.screenX - this.pwidth / 2;
             var y = this.screenY - this.pheight / 2;
-
             pimage.onload = function() {
                 ctx.drawImage(pimage, x, y, pimage.width, pimage.height);
             }
@@ -171,17 +183,17 @@ export default {
 
         drawAll: function() {
             var ctx = this.ctx;
-            //ctx.clearRect(0, 0, this.width, this.height);
+            ctx.clearRect(0, 0, this.width, this.height);
             this.drawMap();
             this.drawPlayer();
         },
 
         gameLoop: function(timestamp) {
             this.now = timestamp;
-            this.step = (this.now - this.last) / 1000.0;
-            this.step = Math.min(this.step, 0.25);
-            this.last = this.now;
-            //this.previous;
+            //this.now = Date.now();
+            this.delta = (this.now - this.then) / 1000.0;
+            this.delta = Math.min(this.delta, 0.25);
+            this.then = this.now;
             this.updatePlayer;
             this.cameraUpdate();
             this.drawAll();
@@ -204,8 +216,8 @@ export default {
 
     mounted() {
 
-        var canvas = this.$refs.mapCanvas;
-        var ctx = canvas.getContext('2d');
+        const canvas = this.$refs.mapCanvas;
+        const ctx = canvas.getContext('2d');
 
         this.createCanvas(ctx);
         this.cameraCreate();
