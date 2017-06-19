@@ -15,7 +15,8 @@ class MobController extends Controller
             ->where('y', $y)
             ->get();
 
-        return response()->json($mobs);
+        return $mobs;
+        //return response()->json($mobs);
     }
 
 }

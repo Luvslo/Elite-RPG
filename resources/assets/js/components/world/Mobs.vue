@@ -1,13 +1,15 @@
 <template>
-    <div class="elite-mobs">
-        Name: {{ mob.name }}
+    <div :mob="mob">
+        <span>{{ mob.name }}</span>
+    </div>
 </template>
 
 <script>
 /**
- * Mobs - Gets the mobs relating to the current 'map' & x y coordinates.
+ * Elite-RPG <Mobs>
  *
- * @prop mob - Array passed from root script.
+ * @root - #app
+ * @prop - mob
  */
 export default {
 
@@ -15,10 +17,4 @@ export default {
 
 }
 
-
 </script>
-
-
-<style>
-
-</style>

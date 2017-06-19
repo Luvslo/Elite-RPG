@@ -8,26 +8,18 @@
                 <small>X: {{ map.x }} - Y: {{ map.y }}</small>
             </div>
         </div>
-        <elite-mobs>
-
-        </elite-mobs>
-    </div>
+        <!--<elite-mobs></elite-mobs>-->
     </div>
 </template>
 
 
 <script>
-
-
 /**
- * Elite-RPG Explore
- * @author <theHeadTy - Ty.S>
+ * Elite-RPG <Map>
+ * @author - <theHeadTy - Ty.S>
  *
- * @todo - Right now the map is only a single image. I would like to
- * switch to the regular 'tile' format using a JSON file with the
- * map image coordinates. That will allow for easy pathfinding, collision,
- * NPC placement, and to add new worlds to the game...
- *
+ * @props map
+ * @data -
  */
 export default {
 
@@ -45,7 +37,7 @@ export default {
             // player
             pwidth: 10,
             pheight: 10,
-            speed: 400,
+            speed: 256,
 
             // camera
             camX: 0,
@@ -56,7 +48,7 @@ export default {
             screenX: 0,
             screenY: 0,
 
-            // delta
+            // animation config
             then: 0,
             now: 0,
             delta: 0,
@@ -116,18 +108,24 @@ export default {
 
         updatePlayer: function (e) {
 
-            if (e.keyCode == 37) {
+            if (e) {
+            if (e.keyCode === 37) {
                 this.map.x -= this.speed * this.delta;
+                //this.map.x -= 3;
             }
-            if (e.keyCode == 39) {
+            if (e.keyCode === 39) {
                 this.map.x += this.speed * this.delta;
+                //this.map.x += 3;
             }
-            if (e.keyCode == 38) {
+            if (e.keyCode === 38) {
                 this.map.y -= this.speed * this.delta;
+                //this.map.y -= 3;
             }
-            if (e.keyCode == 40) {
+            if (e.keyCode === 40) {
                 this.map.y += this.speed * this.delta;
+                //this.map.y += 3;
             }
+        }
 
             // clamp values
             var maxX = this.map.width - (this.pwidth / 2);
@@ -143,7 +141,9 @@ export default {
             //axios.get('/maps').then(response => {
                 // should be broadcasting the websocket event!?
             //});
-
+            if (e) {
+                this.$emit('send', this.map);
+            }
         },
 
         createCanvas: function(context) {
@@ -172,26 +172,53 @@ export default {
             }
         },
 
-        drawAll: function() {
+        drawGame: function() {
             var ctx = this.ctx;
             ctx.clearRect(0, 0, this.width, this.height);
             this.drawMap();
             this.drawPlayer();
         },
 
-        gameLoop: function(timestamp) {
+
+        updateGame: function() {
+            this.updatePlayer();
+            this.cameraUpdate();
+        },
+
+        loopGame: function(timestamp) {
             this.now = timestamp;
             this.delta = (this.now - this.then) / 1000.0;
-            this.delta = Math.min(this.delta, 0.25);
+            this.delta = Math.min(this.delta, 0.50);
             this.then = this.now;
-            this.updatePlayer;
-            this.cameraUpdate();
-            this.drawAll();
-            requestAnimationFrame(this.gameLoop);
+            this.updateGame();
+            this.drawGame();
+            requestAnimationFrame(this.loopGame);
         },
+
+        initGame: function(context) {
+            this.createCanvas(context);
+            this.cameraCreate();
+            this.cameraFollow(this.mapData);
+            requestAnimationFrame(this.loopGame);
+        },
+
+        /*gameLoop: function(timestamp) {
+
+            this.now = timestamp;
+            this.delta = (this.now - this.then) / 1000.0;
+            //this.delta = Math.min(this.delta, 0.25);
+            this.then = this.now;
+
+            requestAnimationFrame(this.gameLoop);
+
+            //this.updatePlayer;
+            //this.cameraUpdate();
+            this.drawAll();
+            //requestAnimationFrame(this.gameLoop);
+        },*/
     },
 
-    created: function() {
+    created() {
 
         addEventListener('keyup', this.updatePlayer);
         addEventListener('keydown', this.updatePlayer);
@@ -209,12 +236,15 @@ export default {
         const canvas = this.$refs.mapCanvas;
         const ctx = canvas.getContext('2d');
 
-        this.createCanvas(ctx);
+        /*this.createCanvas(ctx);
         this.cameraCreate();
         this.cameraFollow(this.mapData);
         requestAnimationFrame(this.gameLoop);
-    },
+        */
 
+        this.initGame(ctx);
+
+    },
 }
 
 </script>

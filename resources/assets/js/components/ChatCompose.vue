@@ -30,9 +30,6 @@ export default {
             this.$emit('send', {
                 message: this.message,
                 user: this.user
-                /*user: {
-                    name: $('.navbar-right .dropdown-toggle').text()
-                }*/
             });
             this.message = '';
         }

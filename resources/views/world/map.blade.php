@@ -15,14 +15,23 @@
                         v-for="map in maps"
                         :key="map.id"
                         :map="map"
+                        v-on:send="updateMobs"
                         >
                     </elite-map>
+
+                    <div class="col-md-6">
+                        <strong>Mobs:</strong>
+                        <hr>
+
                     <elite-mobs
                         v-for="mob in mobs"
-                        :key="mon.id"
+                        :key="mob.id"
                         :mob="mob"
                         >
                     </elite-mobs>
+
+                </div>
+
 
 
                 </div>

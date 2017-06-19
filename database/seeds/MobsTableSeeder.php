@@ -24,5 +24,17 @@ class MobsTableSeeder extends Seeder
             'description' => 'Mob testing description',
             'created_at' => Carbon::now(),
         ]);
+
+        DB::table('mobs')->insert([
+            'map_id' => 1,
+            'name' => 'Testing Mob 2',
+            'image' => 'default',
+            'type' => 'mob',
+            'x' => 150,
+            'y' => 150,
+            'spawn_at' => Carbon::now()->addMinutes(20),
+            'description' => 'Mob testing description',
+            'created_at' => Carbon::now(),
+        ]);
     }
 }

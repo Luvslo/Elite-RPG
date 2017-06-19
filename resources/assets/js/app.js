@@ -27,7 +27,13 @@ window.Vue = require('vue');
  Vue.component('test-map', require('./components/MapTest.vue'));
 
  /**
-  * @todo - restructure this.
+  * Elite-RPG Main js file
+  *
+  * Vue instance
+  * @element - #app
+  * @data
+  * @methods
+  * @created
   */
  const app = new Vue({
      el: '#app',
@@ -46,6 +52,7 @@ window.Vue = require('vue');
          src: '',
          roomName: '',
 
+         // mobs
          mobs: [],
 
      },
@@ -75,19 +82,29 @@ window.Vue = require('vue');
          },
 
          loadMobs: function() {
-         }
+             var id = 1;
+             var x = 150;
+             var y = 150;
+             axios.get('/mobs/'+id+'/'+x+'/'+y).then(response => {
+                 this.mobs = response.data
+             });
+         },
+
+         updateMobs: function(data) {
+             axios.get('/mobs/1/'+data.x+'/'+data.y).then(response => {
+                 this.mobs = [];
+                 this.mobs = response.data;
+             });
+             console.log('map: ' + data.x);
+         },
      },
 
      created: function() {
 
          this.loadMap();
+         this.loadMobs();
 
-         axios.get('/mobs/1/150/150').then(response => {
-            // this.mobs.push(response.data);
-            console.log(response.data);
-         });
-
-         // Elite-RPG websocket - 'pusher'
+         // Elite-RPG websocket (using Laravel's Echo with pusher)
          Echo.join('eliteworld')
             .here((users) => {
                 this.playersInWorld = users;

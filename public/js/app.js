@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 74);
+/******/ 	return __webpack_require__(__webpack_require__.s = 72);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -505,7 +505,7 @@ if (typeof DEBUG !== 'undefined' && DEBUG) {
   ) }
 }
 
-var listToStyles = __webpack_require__(71)
+var listToStyles = __webpack_require__(69)
 
 /*
 type StyleObject = {
@@ -805,7 +805,7 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 module.exports = defaults;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(49)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(48)))
 
 /***/ }),
 /* 5 */
@@ -1111,7 +1111,7 @@ module.exports = g;
 
 __webpack_require__(38);
 
-window.Vue = __webpack_require__(72);
+window.Vue = __webpack_require__(70);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -1119,19 +1119,25 @@ window.Vue = __webpack_require__(72);
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-Vue.component('example', __webpack_require__(54));
-Vue.component('chat-message', __webpack_require__(53));
-Vue.component('chat-log', __webpack_require__(52));
-Vue.component('chat-compose', __webpack_require__(51));
+Vue.component('example', __webpack_require__(53));
+Vue.component('chat-message', __webpack_require__(52));
+Vue.component('chat-log', __webpack_require__(51));
+Vue.component('chat-compose', __webpack_require__(50));
 
 /* Elite-RPG Map */
-Vue.component('elite-map', __webpack_require__(55));
-Vue.component('elite-mobs', __webpack_require__(57));
+Vue.component('elite-map', __webpack_require__(54));
+Vue.component('elite-mobs', __webpack_require__(56));
 /* Admin Test Map */
-Vue.component('test-map', __webpack_require__(56));
+Vue.component('test-map', __webpack_require__(55));
 
 /**
- * @todo - restructure this.
+ * Elite-RPG Main js file
+ *
+ * Vue instance
+ * @element - #app
+ * @data
+ * @methods
+ * @created
  */
 var app = new Vue({
     el: '#app',
@@ -1150,6 +1156,7 @@ var app = new Vue({
         src: '',
         roomName: '',
 
+        // mobs
         mobs: []
 
     },
@@ -1178,45 +1185,60 @@ var app = new Vue({
             });
         },
 
-        loadMobs: function loadMobs() {}
+        loadMobs: function loadMobs() {
+            var _this2 = this;
+
+            var id = 1;
+            var x = 150;
+            var y = 150;
+            axios.get('/mobs/' + id + '/' + x + '/' + y).then(function (response) {
+                _this2.mobs = response.data;
+            });
+        },
+
+        updateMobs: function updateMobs(data) {
+            var _this3 = this;
+
+            axios.get('/mobs/1/' + data.x + '/' + data.y).then(function (response) {
+                _this3.mobs = [];
+                _this3.mobs = response.data;
+            });
+            console.log('map: ' + data.x);
+        }
     },
 
     created: function created() {
-        var _this2 = this;
+        var _this4 = this;
 
         this.loadMap();
+        this.loadMobs();
 
-        axios.get('/mobs/1/150/150').then(function (response) {
-            // this.mobs.push(response.data);
-            console.log(response.data);
-        });
-
-        // Elite-RPG websocket - 'pusher'
+        // Elite-RPG websocket (using Laravel's Echo with pusher)
         Echo.join('eliteworld').here(function (users) {
-            _this2.playersInWorld = users;
+            _this4.playersInWorld = users;
         }).joining(function (user) {
-            _this2.playersInWorld.push(user);
+            _this4.playersInWorld.push(user);
         }).leaving(function (user) {
-            _this2.playersInWorld = _this2.playersInWorld.filter(function (u) {
+            _this4.playersInWorld = _this4.playersInWorld.filter(function (u) {
                 return u != user;
             });
         });
 
         // Chat
         axios.get('/messages').then(function (response) {
-            _this2.items = response.data;
+            _this4.items = response.data;
         });
 
         Echo.join('chatroom').here(function (users) {
-            _this2.usersInRoom = users;
+            _this4.usersInRoom = users;
         }).joining(function (user) {
-            _this2.usersInRoom.push(user);
+            _this4.usersInRoom.push(user);
         }).leaving(function (user) {
-            _this2.usersInRoom = _this2.usersInRoom.filter(function (u) {
+            _this4.usersInRoom = _this4.usersInRoom.filter(function (u) {
                 return u != user;
             });
         }).listen('MessagePosted', function (e) {
-            _this2.items.push({
+            _this4.items.push({
                 message: e.message.message,
                 user: e.user
             });
@@ -2110,9 +2132,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             this.$emit('send', {
                 message: this.message,
                 user: this.user
-                /*user: {
-                    name: $('.navbar-right .dropdown-toggle').text()
-                }*/
             });
             this.message = '';
         }
@@ -2207,20 +2226,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
-//
-//
-
 
 /**
- * Elite-RPG Explore
- * @author <theHeadTy - Ty.S>
+ * Elite-RPG <Map>
+ * @author - <theHeadTy - Ty.S>
  *
- * @todo - Right now the map is only a single image. I would like to
- * switch to the regular 'tile' format using a JSON file with the
- * map image coordinates. That will allow for easy pathfinding, collision,
- * NPC placement, and to add new worlds to the game...
- *
+ * @props map
+ * @data -
  */
 /* harmony default export */ __webpack_exports__["default"] = ({
 
@@ -2238,7 +2250,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             // player
             pwidth: 10,
             pheight: 10,
-            speed: 400,
+            speed: 256,
 
             // camera
             camX: 0,
@@ -2249,7 +2261,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             screenX: 0,
             screenY: 0,
 
-            // delta
+            // animation config
             then: 0,
             now: 0,
             delta: 0,
@@ -2307,17 +2319,23 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
         updatePlayer: function updatePlayer(e) {
 
-            if (e.keyCode == 37) {
-                this.map.x -= this.speed * this.delta;
-            }
-            if (e.keyCode == 39) {
-                this.map.x += this.speed * this.delta;
-            }
-            if (e.keyCode == 38) {
-                this.map.y -= this.speed * this.delta;
-            }
-            if (e.keyCode == 40) {
-                this.map.y += this.speed * this.delta;
+            if (e) {
+                if (e.keyCode === 37) {
+                    this.map.x -= this.speed * this.delta;
+                    //this.map.x -= 3;
+                }
+                if (e.keyCode === 39) {
+                    this.map.x += this.speed * this.delta;
+                    //this.map.x += 3;
+                }
+                if (e.keyCode === 38) {
+                    this.map.y -= this.speed * this.delta;
+                    //this.map.y -= 3;
+                }
+                if (e.keyCode === 40) {
+                    this.map.y += this.speed * this.delta;
+                    //this.map.y += 3;
+                }
             }
 
             // clamp values
@@ -2334,6 +2352,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             //axios.get('/maps').then(response => {
             // should be broadcasting the websocket event!?
             //});
+            if (e) {
+                this.$emit('send', this.map);
+            }
         },
 
         createCanvas: function createCanvas(context) {
@@ -2362,23 +2383,46 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             };
         },
 
-        drawAll: function drawAll() {
+        drawGame: function drawGame() {
             var ctx = this.ctx;
             ctx.clearRect(0, 0, this.width, this.height);
             this.drawMap();
             this.drawPlayer();
         },
 
-        gameLoop: function gameLoop(timestamp) {
+        updateGame: function updateGame() {
+            this.updatePlayer();
+            this.cameraUpdate();
+        },
+
+        loopGame: function loopGame(timestamp) {
             this.now = timestamp;
             this.delta = (this.now - this.then) / 1000.0;
-            this.delta = Math.min(this.delta, 0.25);
+            this.delta = Math.min(this.delta, 0.50);
             this.then = this.now;
-            this.updatePlayer;
-            this.cameraUpdate();
-            this.drawAll();
-            requestAnimationFrame(this.gameLoop);
+            this.updateGame();
+            this.drawGame();
+            requestAnimationFrame(this.loopGame);
+        },
+
+        initGame: function initGame(context) {
+            this.createCanvas(context);
+            this.cameraCreate();
+            this.cameraFollow(this.mapData);
+            requestAnimationFrame(this.loopGame);
         }
+
+        /*gameLoop: function(timestamp) {
+             this.now = timestamp;
+            this.delta = (this.now - this.then) / 1000.0;
+            //this.delta = Math.min(this.delta, 0.25);
+            this.then = this.now;
+             requestAnimationFrame(this.gameLoop);
+             //this.updatePlayer;
+            //this.cameraUpdate();
+            this.drawAll();
+            //requestAnimationFrame(this.gameLoop);
+        },*/
     },
 
     created: function created() {
@@ -2393,16 +2437,18 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             console.log('room name: ' + _this.roomName);
         });
     },
-
     mounted: function mounted() {
 
         var canvas = this.$refs.mapCanvas;
         var ctx = canvas.getContext('2d');
 
-        this.createCanvas(ctx);
+        /*this.createCanvas(ctx);
         this.cameraCreate();
         this.cameraFollow(this.mapData);
         requestAnimationFrame(this.gameLoop);
+        */
+
+        this.initGame(ctx);
     }
 });
 
@@ -2421,16 +2467,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 
 /**
- * Rough Draft for the way I am working towards.
+ * Rough Draft for Canvas tile map.
  *
- * I want to use MONGO DB to store each maps JSON file (cols, rows, layers, ect)
- * and when the page loads (ill use axios first) to pull the players/maps data.
- *
- * Eventually I will create a socket connection to pull data that way -
- * interactive PVP battles!
+ * @author <theHeadTy - theheadty@gmail.com>
+ * @package Elite-RPG
  */
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -2441,244 +2485,185 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             width: 300,
             height: 300,
 
-            maps: [],
-            players: [],
-            camera: [],
+            map: [],
+            player: [],
 
-            layers: [[3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 3, 3, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 3, 3, 3, 3, 1, 1, 2, 3, 3, 3, 3, 3, 3], [4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 5, 0, 0, 0, 0, 0, 5, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 3, 3, 3, 3, 3, 3, 3]],
+            layers: [[55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55], [55, 55, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21], [55, 55, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21], [55, 55, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21], [55, 55, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21], [55, 55, 21, 21, 21, 21, 55, 55, 55, 55, 55, 55], [55, 55, 21, 21, 21, 21, 55, 55, 55, 55, 55, 55], [55, 55, 21, 21, 21, 21, 55, 55, 55, 55, 55, 55], [55, 55, 21, 21, 21, 21, 55, 55, 55, 55, 55, 55], [55, 55, 21, 21, 21, 21, 55, 55, 55, 55, 55, 55], [55, 55, 21, 21, 21, 21, 1, 1, 55, 55, 1, 1], [55, 55, 21, 21, 21, 21, 1, 1, 1, 1, 1, 1]],
 
-            following: '',
-            screenX: 0,
-            screenY: 0,
-            viewX: 0,
-            viewY: 0,
-
-            now: 0,
-            last: 0,
-            delta: 0,
-            speed: 256
-
+            images: [],
+            tileAtlas: '',
+            playerAtlas: ''
         };
     },
 
 
     methods: {
 
+        /**
+         * Loads asset images, tiles (spritesheet) and players (red dot)
+         * @param {array} arr - Returned array from createAssets
+         */
+        loadImages: function loadImages(arr) {
+            for (var i = 0; i < arr.length; i++) {
+                var image = new Image();
+                var loaded = image;
+                if (loaded) {
+                    image.src = arr[i]['image'];
+                    this.images.push({
+                        key: arr[i]['key'],
+                        image: loaded
+                    });
+                }
+            }
+        },
+
+        /**
+         * Creates the data for context.
+         * @param {HTMLCanvasElement.getContext} context
+         */
         createCanvas: function createCanvas(context) {
             this.context = context;
         },
 
-        createData: function createData() {
-            this.maps = {
-                src: 'http://mozdevs.github.io/gamedev-js-tiles/assets/tiles.png',
-                cols: 12,
-                rows: 12,
-                tsize: 64
+        /**
+         * Constructor for map[]
+         */
+        createMap: function createMap() {
+            this.map = {
+                width: 12,
+                height: 12,
+                tileWidth: 32,
+                tileHeight: 32,
+                src: 'https://i.imgur.com/FWftOoT.png'
             };
+            //return this.map;
+        },
 
-            var x = this.maps.cols * this.maps.tsize / 2 - this.maps.tsize / 2;
-            var y = this.maps.rows * this.maps.tsize / 2 - this.maps.tsize / 2;
-
-            this.players = {
+        /**
+         * Constructor for player[]
+         */
+        createPlayer: function createPlayer() {
+            this.player = {
                 src: 'http://i67.tinypic.com/15gblgz.gif',
-                x: x,
-                y: y,
-                viewY: 0,
-                viewX: 0,
-                speed: 300
+                x: 150,
+                y: 150
             };
         },
 
-        createCamera: function createCamera() {
-            this.camera = {
-                x: 0,
-                y: 0,
-                width: this.width,
-                height: this.height,
-                maxX: this.maps.cols * this.maps.tsize - this.width,
-                maxY: this.maps.rows * this.maps.tsize - this.height
-            };
+        /**
+         * Asset array - Store for the asset images that are
+         * going to be pre-loaded.
+         * @return {array}
+         */
+        createAssets: function createAssets() {
+            return [{ key: 'tiles', image: this.map.src }, { key: 'player', image: this.player.src }];
         },
 
-        followCamera: function followCamera(player) {
-            this.following = player;
-            this.viewX = 0;
-            this.viewY = 0;
+        /**
+         * Creates the atlas for player & tile map.
+         * @param {string} val - key to search for from the images array.
+         * @return {array} image
+         */
+        createAtlas: function createAtlas(val) {
+            return this.images.find(function (arr) {
+                return arr.key === val;
+            })['image'];
         },
 
-        updateCamera: function updateCamera() {
-
-            //this.screenX = this.camera.width / 2;
-            //this.screenY = this.camera.height / 2;
-
-            this.viewX = this.width / 2;
-            this.viewY = this.height / 2;
-
-            this.camera.x = this.following.x - this.camera.width / 2;
-            this.camera.y = this.following.y - this.camera.height / 2;
-
-            this.camera.x = Math.max(0, Math.min(this.camera.x, this.camera.maxX));
-            this.camera.y = Math.max(0, Math.min(this.camera.y, this.camera.maxY));
-
-            if (this.following.x < this.camera.width / 2 || this.following.x > this.maxX + this.camera.width / 2) {
-                this.viewX = this.following.x - this.camera.x;
-            }
-            if (this.following.y < this.camera.height / 2 || this.following.y > this.maxY + this.camera.height / 2) {
-                this.viewY = this.following.y - this.camera.y;
-            }
+        /**
+         * Constructs & renders the map onto HTMLCanvasElement.
+         */
+        createStage: function createStage() {
+            this.tileAtlas = this.createAtlas('tiles');
+            var mapW = this.map.width;
+            var mapH = this.map.height;
+            var tileW = this.map.tileWidth;
+            var tileH = this.map.tileHeight;
+            var tileSize = (tileW + tileH) / 2;
+            var width = this.width / tileW;
+            var height = this.height / tileH;
+            this.renderMap(mapW, mapH, tileH, tileW, tileSize);
         },
 
-        getTile: function getTile(layer, col, row) {
-            return this.layers[layer][row * this.maps.cols + col];
-        },
-
-        drawGrid: function drawGrid() {
-            var x, y;
-            var ctx = this.context;
-            var width = this.maps.cols * this.maps.tsize;
-            var height = this.maps.rows * this.maps.tsize;
-            for (var r = 0; r < this.maps.rows; r++) {
-                x = -this.camera.x;
-                y = r * this.maps.tsize - this.camera.y;
-                ctx.beginPath();
-                ctx.moveTo(x, y);
-                ctx.lineTo(width, y);
-                ctx.stroke();
-            }
-            for (var c = 0; c < this.maps.cols; c++) {
-                x = c * this.maps.tsize - this.camera.x;
-                y = -this.camera.y;
-                ctx.beginPath();
-                ctx.moveTo(x, y);
-                ctx.lineTo(x, height);
-                ctx.stroke();
-            }
-        },
-
-        drawMap: function drawMap(layer) {
+        /**
+         * Render - Draw onto HTMLCanvasElement
+         * @param {number} mapW
+         * @param {number} mapH
+         * @param {number} tileH
+         * @param {number} tileSize
+         */
+        renderMap: function renderMap(mapW, mapH, tileW, tileH, tileSize) {
 
             var ctx = this.context;
-            var tsize = this.maps.tsize;
-            var image = new Image();
 
-            // TODO: put this into a function ->
-            var startCol = Math.floor(this.camera.x / tsize);
-            var endCol = startCol + this.camera.width / tsize;
-            var startRow = Math.floor(this.camera.y / tsize);
-            var endRow = startRow + this.camera.height / tsize;
-            var offsetX = -this.camera.x + startCol * tsize;
-            var offsetY = -this.camera.y + startRow * tsize;
+            for (var w = 0; w < mapW; w++) {
+                for (var h = 0; h < mapH; h++) {
 
-            for (var c = startCol; c <= endCol; c++) {
-                for (var r = startRow; r <= endRow; r++) {
-                    var tile = this.getTile(layer, c, r);
-                    var x = (c - startCol) * tsize + offsetX;
-                    var y = (r - startRow) * tsize + offsetY;
-                    if (tile != 0) {
-                        ctx.drawImage(image, (tile - 1) * tsize, 0, tsize, tsize, Math.round(x), Math.round(y), tsize, tsize);
-                        image.src = this.maps.src;
-                    }
+                    var tile = this.layers[w][h];
+
+                    var xpos = w * tileSize;
+                    var ypos = h * tileSize;
+
+                    var x = tile % mapW;
+                    var y = Math.floor(tile / mapH);
+
+                    var sx = x * tileW;
+                    var sy = y * tileH;
+
+                    ctx.drawImage(this.tileAtlas, sx, sy, tileSize, tileSize, xpos, ypos, tileSize, tileSize);
                 }
             }
         },
 
-        drawPlayer: function drawPlayer() {
-            var ctx = this.context;
-            var pimage = new Image();
 
-            var x = this.viewX - this.maps.tsize / 2;
-            var y = this.viewY - this.maps.tsize / 2;
-
-            pimage.onload = function () {
-                ctx.drawImage(pimage, x, y);
-            };
-            pimage.src = this.players.src;
+        /**
+         * Renders the map & player
+         * @todo - Create a createPlayer() & renderPlayer() method.
+         */
+        renderGame: function renderGame() {
+            this.createStage();
         },
 
-        updatePlayer: function updatePlayer(e) {
-            if (e) {
-                if (e.keyCode === 37) {
-                    //console.log('moving left..');
-                    this.players.x -= this.speed * this.delta;
-                }
-                if (e.keyCode === 39) {
-                    //console.log('moving right');
-                    this.players.x += this.speed * this.delta;
-                }
-                if (e.keyCode === 38) {
-                    //console.log('moving up');
-                    this.players.y -= this.speed * this.delta;
-                }
-                if (e.keyCode === 40) {
-                    //console.log('moving down');
-                    this.players.y += this.speed * this.delta;
-                }
-            }
-            // clamp values.
-            var maxX = this.maps.cols * this.maps.tsize;
-            var maxY = this.maps.rows * this.maps.tsize;
-            this.players.x = Math.max(0, Math.min(this.players.x, maxX));
-            this.players.y = Math.max(0, Math.min(this.players.y, maxY));
-
-            console.log('player x: ' + this.players.x);
+        /**
+         * Animation loop - Updates & Renders.
+         * @param {string} timestamp
+         */
+        loopGame: function loopGame(timestamp) {
+            this.context.clearRect(0, 0, this.width, this.height);
+            this.renderGame();
         },
 
-        drawGame: function drawGame() {
-            var ctx = this.context;
-            ctx.clearRect(0, 0, this.width, this.height);
-            this.drawMap(0);
-            this.drawMap(1);
-            this.drawPlayer();
-            //this.drawGrid();
-        },
-
-        updateGame: function updateGame() {
-            this.updatePlayer();
-            this.updateCamera();
-        },
-
-        animateGame: function animateGame(timestamp) {
-            this.now = timestamp;
-            this.delta = (this.now - this.last) / 1000.0;
-            this.delta = Math.min(this.delta, 0.25);
-            this.last = this.now;
-
-            // Update player & camera
-            this.updateGame();
-
-            // Draw map & player
-            this.drawGame();
-
-            // Animate (loop)
-            requestAnimationFrame(this.animateGame);
-        },
-
-        initGame: function initGame() {
-            // Create map & player array
-            this.createData();
-
-            // Set up the camera
-            this.createCamera();
-            this.followCamera(this.players);
-
-            // Game animation loop.
-            requestAnimationFrame(this.animateGame);
+        /**
+         * Initiate Game - Creates, Loads & Instantiates animation loop.
+         * @param {HTMLCanvasElement} context
+         */
+        initGame: function initGame(context) {
+            this.createCanvas(context);
+            this.createMap();
+            this.createPlayer();
+            this.loadImages(this.createAssets());
+            this.loopGame();
         }
-
     },
 
-    created: function created() {
-        addEventListener('keyup', this.updatePlayer);
-        addEventListener('keydown', this.updatePlayer);
-    },
-
+    /**
+     * Creates canvas & context.
+     * HTMLCanvasElement
+     * HTMLCanvasElement.getContext
+     * @this.initGame(HTMLCanvasElement.getContext);
+     */
     mounted: function mounted() {
-        // Canvas init.
         var canvas = this.$refs.testCanvas;
-        var context = canvas.getContext('2d');
-        this.createCanvas(context);
+        var ctx = canvas.getContext('2d');
 
-        this.initGame();
+        this.initGame(ctx);
+    },
+
+
+    // TODO: @keyup @keydown
+    created: function created() {
+        //addEventListener('keyup', this.update);
+        //addEventListener('keydown', this.update);
     }
 });
 
@@ -2693,11 +2678,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 /**
- * Mobs - Gets the mobs relating to the current 'map' & x y coordinates.
+ * Elite-RPG <Mobs>
  *
- * @prop mob - Array passed from root script.
+ * @root - #app
+ * @prop - mob
  */
 /* harmony default export */ __webpack_exports__["default"] = ({
 
@@ -2711,10 +2698,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_laravel_echo__ = __webpack_require__(47);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_laravel_echo__ = __webpack_require__(46);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_laravel_echo___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_laravel_echo__);
 
-window._ = __webpack_require__(48);
+window._ = __webpack_require__(47);
 
 /**
  * We'll load jQuery and the Bootstrap jQuery plugin which provides support
@@ -2723,7 +2710,7 @@ window._ = __webpack_require__(48);
  */
 
 try {
-  window.$ = window.jQuery = __webpack_require__(46);
+  window.$ = window.jQuery = __webpack_require__(45);
 
   __webpack_require__(39);
 } catch (e) {}
@@ -2760,7 +2747,7 @@ if (token) {
 
 
 
-window.Pusher = __webpack_require__(50);
+window.Pusher = __webpack_require__(49);
 
 window.Echo = new __WEBPACK_IMPORTED_MODULE_0_laravel_echo___default.a({
   broadcaster: 'pusher',
@@ -5171,31 +5158,24 @@ exports.push([module.i, "\n.chat-log .chat-message:nth-child(even) {\n    backgr
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(2)();
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+exports.push([module.i, "\n.test-map {\n}\n\n", ""]);
 
 /***/ }),
 /* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(2)();
-exports.push([module.i, "\n.test-map {\n}\n\n", ""]);
+exports.push([module.i, "\n.chat-composer {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n}\n.chat-composer input {\n    -webkit-box-flex: 1;\n        -ms-flex: 1 auto;\n            flex: 1 auto;\n}\n.chat-composer button {\n    border-radius: 0;\n}\n", ""]);
 
 /***/ }),
 /* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(2)();
-exports.push([module.i, "\n.chat-composer {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n}\n.chat-composer input {\n    -webkit-box-flex: 1;\n        -ms-flex: 1 auto;\n            flex: 1 auto;\n}\n.chat-composer button {\n    border-radius: 0;\n}\n", ""]);
-
-/***/ }),
-/* 45 */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(2)();
 exports.push([module.i, "\n.chat-message {\n    padding: 1rem;\n}\n.chat-message > p {\n    margin-bottom: .5rem;\n}\n\n", ""]);
 
 /***/ }),
-/* 46 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -15455,7 +15435,7 @@ return jQuery;
 
 
 /***/ }),
-/* 47 */
+/* 46 */
 /***/ (function(module, exports) {
 
 var asyncGenerator = function () {
@@ -16228,7 +16208,7 @@ var Echo = function () {
 module.exports = Echo;
 
 /***/ }),
-/* 48 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, module) {var __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -33317,10 +33297,10 @@ module.exports = Echo;
   }
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10), __webpack_require__(73)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10), __webpack_require__(71)(module)))
 
 /***/ }),
-/* 49 */
+/* 48 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -33510,7 +33490,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 50 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -37648,18 +37628,18 @@ return /******/ (function(modules) { // webpackBootstrap
 ;
 
 /***/ }),
-/* 51 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
 /* styles */
-__webpack_require__(69)
+__webpack_require__(67)
 
 var Component = __webpack_require__(1)(
   /* script */
   __webpack_require__(31),
   /* template */
-  __webpack_require__(63),
+  __webpack_require__(62),
   /* scopeId */
   null,
   /* cssModules */
@@ -37686,18 +37666,18 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 52 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
 /* styles */
-__webpack_require__(66)
+__webpack_require__(65)
 
 var Component = __webpack_require__(1)(
   /* script */
   __webpack_require__(32),
   /* template */
-  __webpack_require__(59),
+  __webpack_require__(58),
   /* scopeId */
   null,
   /* cssModules */
@@ -37724,18 +37704,18 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 53 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
 /* styles */
-__webpack_require__(70)
+__webpack_require__(68)
 
 var Component = __webpack_require__(1)(
   /* script */
   __webpack_require__(33),
   /* template */
-  __webpack_require__(64),
+  __webpack_require__(63),
   /* scopeId */
   null,
   /* cssModules */
@@ -37762,14 +37742,14 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 54 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
   /* script */
   __webpack_require__(34),
   /* template */
-  __webpack_require__(60),
+  __webpack_require__(59),
   /* scopeId */
   null,
   /* cssModules */
@@ -37796,18 +37776,18 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 55 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
 /* styles */
-__webpack_require__(65)
+__webpack_require__(64)
 
 var Component = __webpack_require__(1)(
   /* script */
   __webpack_require__(35),
   /* template */
-  __webpack_require__(58),
+  __webpack_require__(57),
   /* scopeId */
   null,
   /* cssModules */
@@ -37834,18 +37814,18 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 56 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
 /* styles */
-__webpack_require__(68)
+__webpack_require__(66)
 
 var Component = __webpack_require__(1)(
   /* script */
   __webpack_require__(36),
   /* template */
-  __webpack_require__(62),
+  __webpack_require__(61),
   /* scopeId */
   null,
   /* cssModules */
@@ -37872,18 +37852,14 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 57 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
-
-
-/* styles */
-__webpack_require__(67)
 
 var Component = __webpack_require__(1)(
   /* script */
   __webpack_require__(37),
   /* template */
-  __webpack_require__(61),
+  __webpack_require__(60),
   /* scopeId */
   null,
   /* cssModules */
@@ -37910,7 +37886,7 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 58 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -37924,7 +37900,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       "width": _vm.width,
       "height": _vm.height
     }
-  }), _vm._v(" "), _c('div', [_c('small', [_vm._v("X: " + _vm._s(_vm.map.x) + " - Y: " + _vm._s(_vm.map.y))])])]), _vm._v(" "), _c('elite-mobs')], 1)
+  }), _vm._v(" "), _c('div', [_c('small', [_vm._v("X: " + _vm._s(_vm.map.x) + " - Y: " + _vm._s(_vm.map.y))])])])])
 },staticRenderFns: []}
 module.exports.render._withStripped = true
 if (false) {
@@ -37935,7 +37911,7 @@ if (false) {
 }
 
 /***/ }),
-/* 59 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -37959,7 +37935,7 @@ if (false) {
 }
 
 /***/ }),
-/* 60 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -37988,10 +37964,17 @@ if (false) {
 }
 
 /***/ }),
-/* 61 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports={render:function(){},staticRenderFns:[]}
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    attrs: {
+      "mob": _vm.mob
+    }
+  }, [_c('span', [_vm._v(_vm._s(_vm.mob.name))])])
+},staticRenderFns: []}
+module.exports.render._withStripped = true
 if (false) {
   module.hot.accept()
   if (module.hot.data) {
@@ -38000,12 +37983,15 @@ if (false) {
 }
 
 /***/ }),
-/* 62 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
   return _c('div', {
-    staticClass: "test-map"
+    staticClass: "test-map",
+    attrs: {
+      "images": _vm.images
+    }
   }, [_vm._m(0), _vm._v(" "), _c('canvas', {
     ref: "testCanvas",
     attrs: {
@@ -38026,7 +38012,7 @@ if (false) {
 }
 
 /***/ }),
-/* 63 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -38072,7 +38058,7 @@ if (false) {
 }
 
 /***/ }),
-/* 64 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -38089,7 +38075,7 @@ if (false) {
 }
 
 /***/ }),
-/* 65 */
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
@@ -38115,7 +38101,7 @@ if(false) {
 }
 
 /***/ }),
-/* 66 */
+/* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
@@ -38141,39 +38127,13 @@ if(false) {
 }
 
 /***/ }),
-/* 67 */
+/* 66 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
 var content = __webpack_require__(42);
-if(typeof content === 'string') content = [[module.i, content, '']];
-if(content.locals) module.exports = content.locals;
-// add the styles to the DOM
-var update = __webpack_require__(3)("e652eb8a", content, false);
-// Hot Module Replacement
-if(false) {
- // When the styles change, update the <style> tags
- if(!content.locals) {
-   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"id\":\"data-v-4fdce5aa\",\"scoped\":false,\"hasInlineConfig\":true}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Mobs.vue", function() {
-     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"id\":\"data-v-4fdce5aa\",\"scoped\":false,\"hasInlineConfig\":true}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Mobs.vue");
-     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-     update(newContent);
-   });
- }
- // When the module is disposed, remove the <style> tags
- module.hot.dispose(function() { update(); });
-}
-
-/***/ }),
-/* 68 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(43);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
@@ -38193,13 +38153,13 @@ if(false) {
 }
 
 /***/ }),
-/* 69 */
+/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(44);
+var content = __webpack_require__(43);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
@@ -38219,13 +38179,13 @@ if(false) {
 }
 
 /***/ }),
-/* 70 */
+/* 68 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(45);
+var content = __webpack_require__(44);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
@@ -38245,7 +38205,7 @@ if(false) {
 }
 
 /***/ }),
-/* 71 */
+/* 69 */
 /***/ (function(module, exports) {
 
 /**
@@ -38278,7 +38238,7 @@ module.exports = function listToStyles (parentId, list) {
 
 
 /***/ }),
-/* 72 */
+/* 70 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -47976,7 +47936,7 @@ module.exports = Vue$3;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
 
 /***/ }),
-/* 73 */
+/* 71 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -48004,7 +47964,7 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 74 */
+/* 72 */
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(11);
