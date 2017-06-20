@@ -1,17 +1,20 @@
 <script>
-
 import Rectangle from './Rectangle.js'
-
-//export default class Camera ({
-export default {
-
+/**
+ * Camera -
+ * Virtual Viewport for the world map (2D) Canvas - simply the frame
+ * of the actual canvas element. -this.x -this.y translates to move
+ * the camera as the player moves out of the canvas boundary.
+ * @package - Elite-RPG Game
+ */
+export class Camera {
     /**
      * Constructor - Creates the Camera viewport.
      * @param {Object} map - The map object
      * @param {Number} width - Canvas width
      * @param {Number} height - Canvas height
      */
-    Camera: function(map, width, height) {
+    constructor(map, width, height) {
         this.x = 0;
         this.y = 0;
         this.width = width;
@@ -19,32 +22,31 @@ export default {
         this.fullWidth = (map.width * map.tileWidth);
         this.fullHeight = (map.height * map.tileHeight);
 
-        // Create a Rectangle for the camera & full map
+        // Create a Rectangle for the camera & full size map image
         this.camRect = new Rectangle(this.x, this.y, width, height);
         this.mapRect = new Rectangle(0, 0, this.fullWidth, this.fullHeight);
+
+        // Following object set to false as default.
         this.follow = false;
-
-        //this.maxCamX = this.map.width * this.map.tileWidth - width;
-        //this.maxCamY = this.map.height * this.map.tileHeight - height;
-
-
-    },
+    }
 
     /**
-     * Instantiates the camera to 'follow'
+     * Create a following object for the camera to use.
      * @param {Object} player - Player object
      */
-    onFollow: function(player) {
+    onFollow(player) {
         this.follow = player;
         this.maxX = this.width / 2;
         this.maxY = this.width / 2;
-    },
-
+    }
 
     /**
-     * Updates the camera
+     * Update Camera -
      */
-    onUpdate: function() {
+    onUpdate() {
+
+        this.x = Math.max(0, Math.min(this.x, this.maxX));
+        this.y = Math.max(0, Math.min(this.y, this.maxY));
 
         if (this.follow.x - this.x + this.maxX > this.width) {
             this.x = this.follow.x - (this.width - this.maxX);
@@ -58,10 +60,15 @@ export default {
             this.y = this.follow.y - this.maxY;
         }
 
-        // Set the updated camera settings into the camera rectangle.
+        this.x = Math.max(0, Math.min(this.x, this.maxX));
+        this.y = Math.max(0, Math.min(this.y, this.maxY));
+
+        // set new camera rectangle dimensions -
+        // based on the new x&y positions.
         this.camRect.set(this.x, this.y);
 
         if(!this.camRect.within(this.mapRect)) {
+
             if (this.camRect.left < this.mapRect.left)
                 this.x = this.mapRect.left;
 
@@ -75,7 +82,6 @@ export default {
                 this.y = this.mapRect.bottom - this.height;
         }
     }
-
-
 }
+
 </script>

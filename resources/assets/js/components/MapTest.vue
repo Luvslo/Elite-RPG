@@ -1,4 +1,3 @@
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
 <template>
     <div class="test-map">
         <div>
@@ -19,7 +18,7 @@
  * @version 1.2
  */
 
-import Camera from './world/Camera.vue'
+import { Camera } from './world/Camera.vue'
 
 export default {
 
@@ -60,6 +59,11 @@ export default {
 
         }
     },
+
+
+    //components: {
+    //    'Camera': Camera,
+    //},
 
     methods: {
 
@@ -178,7 +182,7 @@ export default {
         /**
          * Constructs & renders the map onto HTMLCanvasElement.
          */
-        createStage: function() {
+        createStage: function(camera) {
             this.tileAtlas = this.createAtlas('tiles');
             var mapW = this.map.width;
             var mapH = this.map.height;
@@ -187,7 +191,7 @@ export default {
             var tileSize = (tileW + tileH) / 2;
             var width = this.width / tileW;
             var height = this.height / tileH;
-            this.renderMap(mapW, mapH, tileH, tileW, tileSize);
+            this.renderMap(mapW, mapH, tileH, tileW, tileSize, camera);
         },
 
         /**
@@ -197,7 +201,7 @@ export default {
          * @param {Number} tileH
          * @param {Number} tileSize
          */
-        renderMap(mapW, mapH, tileWidth, tileHeight, tileSize) {
+        renderMap(mapW, mapH, tileWidth, tileHeight, tileSize, camera) {
 
             var cameraX = Math.floor(Camera.x / tileWidth);
             var cameraY = Math.floor(Camera.y / tileHeight);
@@ -226,7 +230,7 @@ export default {
                     // end dont modify --
 
                     ctx.save();
-                    ctx.translate(-Camera.x, -Camera.y);
+                    ctx.translate(-camera.x, -camera.y);
                     ctx.drawImage(
                         this.tileAtlas,
                         sx, sy,
@@ -249,15 +253,15 @@ export default {
          * then I will be able to compute sizes, and create a function
          * for that - But until then the bootleg red dot works.
          */
-        renderPlayer: function() {
+        renderPlayer: function(camera) {
             this.playerAtlas = this.createAtlas('player');
             let ctx = this.context;
 
             //let xpos = this.player.x - Camera.x; // @todo (image.width / 2)
             //let ypos = this.player.y - Camera.y; // @todo (image.height / 2)
 
-            let xpos = (this.player.x - (this.player.width / 2) - Camera.x);
-            let ypos = (this.player.y - (this.player.height / 2) - Camera.y);
+            let xpos = (this.player.x - (this.player.width / 2) - camera.x);
+            let ypos = (this.player.y - (this.player.height / 2) - camera.y);
 
             let width = (this.player.width / 2);
             let height = (this.player.height / 2);
@@ -275,14 +279,14 @@ export default {
          * Renders the map & player
          * @todo - Create renderPlayer() method.
          */
-        renderGame: function() {
+        renderGame: function(camera) {
             this.context.clearRect(0, 0, this.width, this.height);
-            this.createStage();
-            this.renderPlayer();
+            this.createStage(camera);
+            this.renderPlayer(camera);
         },
 
-        updateGame: function() {
-            Camera.onUpdate();
+        updateGame: function(camera) {
+            camera.onUpdate();
         },
 
         /**
@@ -296,8 +300,11 @@ export default {
             this.delta = Math.min(this.delta, 0.25);
             this.then = this.now;
 
-            this.updateGame();
-            this.renderGame();
+            var camera = new Camera(this.map, this.width, this.height);
+            camera.onFollow(this.player);
+
+            this.updateGame(camera);
+            this.renderGame(camera);
             requestAnimationFrame(this.loopGame);
         },
 
@@ -310,11 +317,8 @@ export default {
             this.createCanvas(context);
             this.createMap();
             this.createPlayer();
-
-            Camera.Camera(this.map, this.width, this.height);
-            Camera.onFollow(this.player);
-
             this.loadImages(this.createAssets());
+
             requestAnimationFrame(this.loopGame);
         }
     },

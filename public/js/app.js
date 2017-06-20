@@ -2470,7 +2470,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
 
 
 /**
@@ -2509,6 +2508,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         };
     },
 
+
+    //components: {
+    //    'Camera': Camera,
+    //},
 
     methods: {
 
@@ -2624,7 +2627,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         /**
          * Constructs & renders the map onto HTMLCanvasElement.
          */
-        createStage: function createStage() {
+        createStage: function createStage(camera) {
             this.tileAtlas = this.createAtlas('tiles');
             var mapW = this.map.width;
             var mapH = this.map.height;
@@ -2633,7 +2636,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             var tileSize = (tileW + tileH) / 2;
             var width = this.width / tileW;
             var height = this.height / tileH;
-            this.renderMap(mapW, mapH, tileH, tileW, tileSize);
+            this.renderMap(mapW, mapH, tileH, tileW, tileSize, camera);
         },
 
         /**
@@ -2643,12 +2646,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
          * @param {Number} tileH
          * @param {Number} tileSize
          */
-        renderMap: function renderMap(mapW, mapH, tileWidth, tileHeight, tileSize) {
+        renderMap: function renderMap(mapW, mapH, tileWidth, tileHeight, tileSize, camera) {
 
-            var cameraX = Math.floor(__WEBPACK_IMPORTED_MODULE_0__world_Camera_vue___default.a.x / tileWidth);
-            var cameraY = Math.floor(__WEBPACK_IMPORTED_MODULE_0__world_Camera_vue___default.a.y / tileHeight);
-            var offsetX = -__WEBPACK_IMPORTED_MODULE_0__world_Camera_vue___default.a.x + cameraX * tileWidth;
-            var offsetY = -__WEBPACK_IMPORTED_MODULE_0__world_Camera_vue___default.a.y + cameraY * tileHeight;
+            var cameraX = Math.floor(__WEBPACK_IMPORTED_MODULE_0__world_Camera_vue__["Camera"].x / tileWidth);
+            var cameraY = Math.floor(__WEBPACK_IMPORTED_MODULE_0__world_Camera_vue__["Camera"].y / tileHeight);
+            var offsetX = -__WEBPACK_IMPORTED_MODULE_0__world_Camera_vue__["Camera"].x + cameraX * tileWidth;
+            var offsetY = -__WEBPACK_IMPORTED_MODULE_0__world_Camera_vue__["Camera"].y + cameraY * tileHeight;
 
             var ctx = this.context;
 
@@ -2672,7 +2675,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                     // end dont modify --
 
                     ctx.save();
-                    ctx.translate(-__WEBPACK_IMPORTED_MODULE_0__world_Camera_vue___default.a.x, -__WEBPACK_IMPORTED_MODULE_0__world_Camera_vue___default.a.y);
+                    ctx.translate(-camera.x, -camera.y);
                     ctx.drawImage(this.tileAtlas, sx, sy, tileWidth, tileHeight, xpos, ypos, tileWidth, tileHeight);
                     ctx.restore();
                 }
@@ -2690,15 +2693,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
          * then I will be able to compute sizes, and create a function
          * for that - But until then the bootleg red dot works.
          */
-        renderPlayer: function renderPlayer() {
+        renderPlayer: function renderPlayer(camera) {
             this.playerAtlas = this.createAtlas('player');
             var ctx = this.context;
 
             //let xpos = this.player.x - Camera.x; // @todo (image.width / 2)
             //let ypos = this.player.y - Camera.y; // @todo (image.height / 2)
 
-            var xpos = this.player.x - this.player.width / 2 - __WEBPACK_IMPORTED_MODULE_0__world_Camera_vue___default.a.x;
-            var ypos = this.player.y - this.player.height / 2 - __WEBPACK_IMPORTED_MODULE_0__world_Camera_vue___default.a.y;
+            var xpos = this.player.x - this.player.width / 2 - camera.x;
+            var ypos = this.player.y - this.player.height / 2 - camera.y;
 
             var width = this.player.width / 2;
             var height = this.player.height / 2;
@@ -2716,14 +2719,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
          * Renders the map & player
          * @todo - Create renderPlayer() method.
          */
-        renderGame: function renderGame() {
+        renderGame: function renderGame(camera) {
             this.context.clearRect(0, 0, this.width, this.height);
-            this.createStage();
-            this.renderPlayer();
+            this.createStage(camera);
+            this.renderPlayer(camera);
         },
 
-        updateGame: function updateGame() {
-            __WEBPACK_IMPORTED_MODULE_0__world_Camera_vue___default.a.onUpdate();
+        updateGame: function updateGame(camera) {
+            camera.onUpdate();
         },
 
         /**
@@ -2737,8 +2740,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             this.delta = Math.min(this.delta, 0.25);
             this.then = this.now;
 
-            this.updateGame();
-            this.renderGame();
+            var camera = new __WEBPACK_IMPORTED_MODULE_0__world_Camera_vue__["Camera"](this.map, this.width, this.height);
+            camera.onFollow(this.player);
+
+            this.updateGame(camera);
+            this.renderGame(camera);
             requestAnimationFrame(this.loopGame);
         },
 
@@ -2751,11 +2757,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             this.createCanvas(context);
             this.createMap();
             this.createPlayer();
-
-            __WEBPACK_IMPORTED_MODULE_0__world_Camera_vue___default.a.Camera(this.map, this.width, this.height);
-            __WEBPACK_IMPORTED_MODULE_0__world_Camera_vue___default.a.onFollow(this.player);
-
             this.loadImages(this.createAssets());
+
             requestAnimationFrame(this.loopGame);
         }
     },
@@ -2789,20 +2792,29 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Rectangle_js__ = __webpack_require__(40);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Camera", function() { return Camera; });
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 
-
-
-//export default class Camera ({
-/* harmony default export */ __webpack_exports__["default"] = ({
-
+/**
+ * Camera -
+ * Virtual Viewport for the world map (2D) Canvas - simply the frame
+ * of the actual canvas element. -this.x -this.y translates to move
+ * the camera as the player moves out of the canvas boundary.
+ * @package - Elite-RPG Game
+ */
+var Camera = function () {
     /**
      * Constructor - Creates the Camera viewport.
      * @param {Object} map - The map object
      * @param {Number} width - Canvas width
      * @param {Number} height - Canvas height
      */
-    Camera: function Camera(map, width, height) {
+    function Camera(map, width, height) {
+        _classCallCheck(this, Camera);
+
         this.x = 0;
         this.y = 0;
         this.width = width;
@@ -2810,58 +2822,73 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         this.fullWidth = map.width * map.tileWidth;
         this.fullHeight = map.height * map.tileHeight;
 
-        // Create a Rectangle for the camera & full map
+        // Create a Rectangle for the camera & full size map image
         this.camRect = new __WEBPACK_IMPORTED_MODULE_0__Rectangle_js__["a" /* default */](this.x, this.y, width, height);
         this.mapRect = new __WEBPACK_IMPORTED_MODULE_0__Rectangle_js__["a" /* default */](0, 0, this.fullWidth, this.fullHeight);
+
+        // Following object set to false as default.
         this.follow = false;
-
-        //this.maxCamX = this.map.width * this.map.tileWidth - width;
-        //this.maxCamY = this.map.height * this.map.tileHeight - height;
-
-    },
-
-    /**
-     * Instantiates the camera to 'follow'
-     * @param {Object} player - Player object
-     */
-    onFollow: function onFollow(player) {
-        this.follow = player;
-        this.maxX = this.width / 2;
-        this.maxY = this.width / 2;
-    },
-
-    /**
-     * Updates the camera
-     */
-    onUpdate: function onUpdate() {
-
-        if (this.follow.x - this.x + this.maxX > this.width) {
-            this.x = this.follow.x - (this.width - this.maxX);
-        } else if (this.follow.x - this.maxX < this.x) {
-            this.x = this.follow.x - this.maxX;
-        }
-
-        if (this.follow.y - this.y + this.maxY > this.height) {
-            this.y = this.follow.y - (this.height - this.maxY);
-        } else if (this.follow.y - this.maxY < this.height) {
-            this.y = this.follow.y - this.maxY;
-        }
-
-        // Set the updated camera settings into the camera rectangle.
-        this.camRect.set(this.x, this.y);
-
-        if (!this.camRect.within(this.mapRect)) {
-            if (this.camRect.left < this.mapRect.left) this.x = this.mapRect.left;
-
-            if (this.camRect.top < this.mapRect.top) this.y = this.mapRect.top;
-
-            if (this.camRect.right > this.mapRect.right) this.x = this.mapRect.right - this.width;
-
-            if (this.camRect.bottom > this.mapRect.bottom) this.y = this.mapRect.bottom - this.height;
-        }
     }
 
-});
+    /**
+     * Create a following object for the camera to use.
+     * @param {Object} player - Player object
+     */
+
+
+    _createClass(Camera, [{
+        key: 'onFollow',
+        value: function onFollow(player) {
+            this.follow = player;
+            this.maxX = this.width / 2;
+            this.maxY = this.width / 2;
+        }
+
+        /**
+         * Update Camera -
+         */
+
+    }, {
+        key: 'onUpdate',
+        value: function onUpdate() {
+
+            this.x = Math.max(0, Math.min(this.x, this.maxX));
+            this.y = Math.max(0, Math.min(this.y, this.maxY));
+
+            if (this.follow.x - this.x + this.maxX > this.width) {
+                this.x = this.follow.x - (this.width - this.maxX);
+            } else if (this.follow.x - this.maxX < this.x) {
+                this.x = this.follow.x - this.maxX;
+            }
+
+            if (this.follow.y - this.y + this.maxY > this.height) {
+                this.y = this.follow.y - (this.height - this.maxY);
+            } else if (this.follow.y - this.maxY < this.height) {
+                this.y = this.follow.y - this.maxY;
+            }
+
+            this.x = Math.max(0, Math.min(this.x, this.maxX));
+            this.y = Math.max(0, Math.min(this.y, this.maxY));
+
+            // set new camera rectangle dimensions -
+            // based on the new x&y positions.
+            this.camRect.set(this.x, this.y);
+
+            if (!this.camRect.within(this.mapRect)) {
+
+                if (this.camRect.left < this.mapRect.left) this.x = this.mapRect.left;
+
+                if (this.camRect.top < this.mapRect.top) this.y = this.mapRect.top;
+
+                if (this.camRect.right > this.mapRect.right) this.x = this.mapRect.right - this.width;
+
+                if (this.camRect.bottom > this.mapRect.bottom) this.y = this.mapRect.bottom - this.height;
+            }
+        }
+    }]);
+
+    return Camera;
+}();
 
 /***/ }),
 /* 38 */

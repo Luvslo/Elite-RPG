@@ -1,4 +1,3 @@
-
 /**
  * Rectangle - Creates a 2d rectangle that is placed over the map canvas.
  * This is used as the cameras 'virtual' representation of the actual
