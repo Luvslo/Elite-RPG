@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 72);
+/******/ 	return __webpack_require__(__webpack_require__.s = 75);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -505,7 +505,7 @@ if (typeof DEBUG !== 'undefined' && DEBUG) {
   ) }
 }
 
-var listToStyles = __webpack_require__(69)
+var listToStyles = __webpack_require__(72)
 
 /*
 type StyleObject = {
@@ -805,7 +805,7 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 module.exports = defaults;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(48)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(50)))
 
 /***/ }),
 /* 5 */
@@ -1109,9 +1109,9 @@ module.exports = g;
  * building robust, powerful web applications using Vue and Laravel.
  */
 
-__webpack_require__(38);
+__webpack_require__(39);
 
-window.Vue = __webpack_require__(70);
+window.Vue = __webpack_require__(73);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -1119,16 +1119,16 @@ window.Vue = __webpack_require__(70);
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-Vue.component('example', __webpack_require__(53));
-Vue.component('chat-message', __webpack_require__(52));
-Vue.component('chat-log', __webpack_require__(51));
-Vue.component('chat-compose', __webpack_require__(50));
+Vue.component('example', __webpack_require__(55));
+Vue.component('chat-message', __webpack_require__(54));
+Vue.component('chat-log', __webpack_require__(53));
+Vue.component('chat-compose', __webpack_require__(52));
 
 /* Elite-RPG Map */
-Vue.component('elite-map', __webpack_require__(54));
-Vue.component('elite-mobs', __webpack_require__(56));
+Vue.component('elite-map', __webpack_require__(56));
+Vue.component('elite-mobs', __webpack_require__(59));
 /* Admin Test Map */
-Vue.component('test-map', __webpack_require__(55));
+Vue.component('test-map', __webpack_require__(57));
 
 /**
  * Elite-RPG Main js file
@@ -2458,6 +2458,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__world_Camera_vue__ = __webpack_require__(58);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__world_Camera_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__world_Camera_vue__);
+//
 //
 //
 //
@@ -2471,11 +2474,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 /**
- * Rough Draft for Canvas tile map.
+ * Elite-RPG Map - Rough Draft HTMLCanvasElement Tile Map.
  *
  * @author <theHeadTy - theheadty@gmail.com>
  * @package Elite-RPG
+ * @version 1.2
  */
+
+
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     data: function data() {
@@ -2491,8 +2497,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             layers: [[55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55], [55, 55, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21], [55, 55, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21], [55, 55, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21], [55, 55, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21], [55, 55, 21, 21, 21, 21, 55, 55, 55, 55, 55, 55], [55, 55, 21, 21, 21, 21, 55, 55, 55, 55, 55, 55], [55, 55, 21, 21, 21, 21, 55, 55, 55, 55, 55, 55], [55, 55, 21, 21, 21, 21, 55, 55, 55, 55, 55, 55], [55, 55, 21, 21, 21, 21, 55, 55, 55, 55, 55, 55], [55, 55, 21, 21, 21, 21, 1, 1, 55, 55, 1, 1], [55, 55, 21, 21, 21, 21, 1, 1, 1, 1, 1, 1]],
 
             images: [],
-            tileAtlas: '',
-            playerAtlas: ''
+            tileAtlas: null,
+            playerAtlas: null,
+
+            // Delta time
+            speed: 256,
+            then: 0,
+            now: 0,
+            delta: 0
+
         };
     },
 
@@ -2500,20 +2513,20 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     methods: {
 
         /**
-         * Loads asset images, tiles (spritesheet) and players (red dot)
-         * @param {array} arr - Returned array from createAssets
+         * Loads asset images -
+         * tiles (spritesheet) & players (red dot)
+         * @param {array} arr - createAssets Array.
          */
         loadImages: function loadImages(arr) {
             for (var i = 0; i < arr.length; i++) {
                 var image = new Image();
+                image.onload = function () {};
                 var loaded = image;
-                if (loaded) {
-                    image.src = arr[i]['image'];
-                    this.images.push({
-                        key: arr[i]['key'],
-                        image: loaded
-                    });
-                }
+                image.src = arr[i]['image'];
+                this.images.push({
+                    key: arr[i]['key'],
+                    image: loaded
+                });
             }
         },
 
@@ -2536,7 +2549,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 tileHeight: 32,
                 src: 'https://i.imgur.com/FWftOoT.png'
             };
-            //return this.map;
         },
 
         /**
@@ -2546,13 +2558,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             this.player = {
                 src: 'http://i67.tinypic.com/15gblgz.gif',
                 x: 150,
-                y: 150
+                y: 150,
+                width: 32,
+                height: 32
             };
         },
 
         /**
-         * Asset array - Store for the asset images that are
-         * going to be pre-loaded.
+         * Creates Asset array -
+         * Store for all asset images that need to be pre-loaded.
          * @return {array}
          */
         createAssets: function createAssets() {
@@ -2561,13 +2575,50 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
         /**
          * Creates the atlas for player & tile map.
-         * @param {string} val - key to search for from the images array.
-         * @return {array} image
+         * @param {string} val - Key to search for from the images array.
+         * @return {array}
          */
         createAtlas: function createAtlas(val) {
             return this.images.find(function (arr) {
                 return arr.key === val;
             })['image'];
+        },
+
+        /**
+         * Clamp players min/max x & y coordinates.
+         * @param {Number} x - Players current x (getting updated)
+         * @param {Number} y - Players current y (getting updated)
+         */
+        clampPlayer: function clampPlayer(x, y) {
+
+            var width = this.player.width;
+            var height = this.player.height;
+
+            var maxX = this.map.width * this.map.tileWidth;
+            var maxY = this.map.height * this.map.tileHeight + 2;
+
+            this.player.x = Math.max(0, Math.min(x, maxX));
+            this.player.y = Math.max(0, Math.min(y, maxY));
+        },
+
+        /**
+         * Update players x & y position.
+         * @param {KeyboardEvent} e - Event
+         */
+        updatePlayer: function updatePlayer(e) {
+            if (e.keyCode === 37) {
+                this.player.x -= this.speed * this.delta;
+            }
+            if (e.keyCode === 39) {
+                this.player.x += this.speed * this.delta;
+            }
+            if (e.keyCode === 38) {
+                this.player.y -= this.speed * this.delta;
+            }
+            if (e.keyCode === 40) {
+                this.player.y += this.speed * this.delta;
+            }
+            this.clampPlayer(this.player.x, this.player.y);
         },
 
         /**
@@ -2587,12 +2638,17 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
         /**
          * Render - Draw onto HTMLCanvasElement
-         * @param {number} mapW
-         * @param {number} mapH
-         * @param {number} tileH
-         * @param {number} tileSize
+         * @param {Number} mapW
+         * @param {Number} mapH
+         * @param {Number} tileH
+         * @param {Number} tileSize
          */
-        renderMap: function renderMap(mapW, mapH, tileW, tileH, tileSize) {
+        renderMap: function renderMap(mapW, mapH, tileWidth, tileHeight, tileSize) {
+
+            var cameraX = Math.floor(__WEBPACK_IMPORTED_MODULE_0__world_Camera_vue___default.a.x / tileWidth);
+            var cameraY = Math.floor(__WEBPACK_IMPORTED_MODULE_0__world_Camera_vue___default.a.y / tileHeight);
+            var offsetX = -__WEBPACK_IMPORTED_MODULE_0__world_Camera_vue___default.a.x + cameraX * tileWidth;
+            var offsetY = -__WEBPACK_IMPORTED_MODULE_0__world_Camera_vue___default.a.y + cameraY * tileHeight;
 
             var ctx = this.context;
 
@@ -2604,71 +2660,211 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                     var xpos = w * tileSize;
                     var ypos = h * tileSize;
 
+                    //let xpos = (w - cameraX) * tileWidth + offsetX;
+                    //let ypos = (h - cameraY) * tileHeight + offsetY;
+
+                    // dont modify --
                     var x = tile % mapW;
                     var y = Math.floor(tile / mapH);
 
-                    var sx = x * tileW;
-                    var sy = y * tileH;
+                    var sx = x * tileWidth;
+                    var sy = y * tileHeight;
+                    // end dont modify --
 
-                    ctx.drawImage(this.tileAtlas, sx, sy, tileSize, tileSize, xpos, ypos, tileSize, tileSize);
+                    ctx.save();
+                    ctx.translate(-__WEBPACK_IMPORTED_MODULE_0__world_Camera_vue___default.a.x, -__WEBPACK_IMPORTED_MODULE_0__world_Camera_vue___default.a.y);
+                    ctx.drawImage(this.tileAtlas, sx, sy, tileWidth, tileHeight, xpos, ypos, tileWidth, tileHeight);
+                    ctx.restore();
                 }
             }
         },
 
 
         /**
+         * Render Player -
+         * Draws player onto {HTMLCanvasElement.getContext}
+         * @todo - x&y need to have their image (w&h / 2) when defined.
+         * @example - let xpos = (player.x - (image.width / 2) - camera.x)
+         * Without that defined the clamp values are not entirely accurate.
+         * Once I have player sprite sheets, and a default image to use
+         * then I will be able to compute sizes, and create a function
+         * for that - But until then the bootleg red dot works.
+         */
+        renderPlayer: function renderPlayer() {
+            this.playerAtlas = this.createAtlas('player');
+            var ctx = this.context;
+
+            //let xpos = this.player.x - Camera.x; // @todo (image.width / 2)
+            //let ypos = this.player.y - Camera.y; // @todo (image.height / 2)
+
+            var xpos = this.player.x - this.player.width / 2 - __WEBPACK_IMPORTED_MODULE_0__world_Camera_vue___default.a.x;
+            var ypos = this.player.y - this.player.height / 2 - __WEBPACK_IMPORTED_MODULE_0__world_Camera_vue___default.a.y;
+
+            var width = this.player.width / 2;
+            var height = this.player.height / 2;
+
+            ctx.save();
+            ctx.fillStyle = 'red';
+            ctx.fillRect(xpos, ypos, width, height);
+            ctx.restore();
+
+            // Draw player on the world!
+            //ctx.drawImage(this.playerAtlas, xpos, ypos);
+        },
+
+        /**
          * Renders the map & player
-         * @todo - Create a createPlayer() & renderPlayer() method.
+         * @todo - Create renderPlayer() method.
          */
         renderGame: function renderGame() {
+            this.context.clearRect(0, 0, this.width, this.height);
             this.createStage();
+            this.renderPlayer();
+        },
+
+        updateGame: function updateGame() {
+            __WEBPACK_IMPORTED_MODULE_0__world_Camera_vue___default.a.onUpdate();
         },
 
         /**
          * Animation loop - Updates & Renders.
-         * @param {string} timestamp
+         * @param {string} timestamp - timestamp for animation.
          */
         loopGame: function loopGame(timestamp) {
-            this.context.clearRect(0, 0, this.width, this.height);
+
+            this.now = timestamp;
+            this.delta = (timestamp - this.then) / 1000.0;
+            this.delta = Math.min(this.delta, 0.25);
+            this.then = this.now;
+
+            this.updateGame();
             this.renderGame();
+            requestAnimationFrame(this.loopGame);
         },
 
         /**
          * Initiate Game - Creates, Loads & Instantiates animation loop.
-         * @param {HTMLCanvasElement} context
+         * @param {HTMLCanvasElement.getContext} context
+         * @param
          */
         initGame: function initGame(context) {
             this.createCanvas(context);
             this.createMap();
             this.createPlayer();
+
+            __WEBPACK_IMPORTED_MODULE_0__world_Camera_vue___default.a.Camera(this.map, this.width, this.height);
+            __WEBPACK_IMPORTED_MODULE_0__world_Camera_vue___default.a.onFollow(this.player);
+
             this.loadImages(this.createAssets());
-            this.loopGame();
+            requestAnimationFrame(this.loopGame);
         }
     },
 
     /**
      * Creates canvas & context.
-     * HTMLCanvasElement
-     * HTMLCanvasElement.getContext
+     * {HTMLCanvasElement}
+     * {HTMLCanvasElement.getContext}
      * @this.initGame(HTMLCanvasElement.getContext);
+     * @todo - Add a Promise for loading assets.
      */
     mounted: function mounted() {
         var canvas = this.$refs.testCanvas;
         var ctx = canvas.getContext('2d');
-
         this.initGame(ctx);
     },
 
 
-    // TODO: @keyup @keydown
+    // @note - Testing key events, just for debugging to move around.
+    // eventually this will owm its own component.
     created: function created() {
-        //addEventListener('keyup', this.update);
-        //addEventListener('keydown', this.update);
+        addEventListener('keyup', this.updatePlayer);
+        addEventListener('keydown', this.updatePlayer);
     }
 });
 
 /***/ }),
 /* 37 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Rectangle_js__ = __webpack_require__(40);
+
+
+
+
+//export default class Camera ({
+/* harmony default export */ __webpack_exports__["default"] = ({
+
+    /**
+     * Constructor - Creates the Camera viewport.
+     * @param {Object} map - The map object
+     * @param {Number} width - Canvas width
+     * @param {Number} height - Canvas height
+     */
+    Camera: function Camera(map, width, height) {
+        this.x = 0;
+        this.y = 0;
+        this.width = width;
+        this.height = height;
+        this.fullWidth = map.width * map.tileWidth;
+        this.fullHeight = map.height * map.tileHeight;
+
+        // Create a Rectangle for the camera & full map
+        this.camRect = new __WEBPACK_IMPORTED_MODULE_0__Rectangle_js__["a" /* default */](this.x, this.y, width, height);
+        this.mapRect = new __WEBPACK_IMPORTED_MODULE_0__Rectangle_js__["a" /* default */](0, 0, this.fullWidth, this.fullHeight);
+        this.follow = false;
+
+        //this.maxCamX = this.map.width * this.map.tileWidth - width;
+        //this.maxCamY = this.map.height * this.map.tileHeight - height;
+
+    },
+
+    /**
+     * Instantiates the camera to 'follow'
+     * @param {Object} player - Player object
+     */
+    onFollow: function onFollow(player) {
+        this.follow = player;
+        this.maxX = this.width / 2;
+        this.maxY = this.width / 2;
+    },
+
+    /**
+     * Updates the camera
+     */
+    onUpdate: function onUpdate() {
+
+        if (this.follow.x - this.x + this.maxX > this.width) {
+            this.x = this.follow.x - (this.width - this.maxX);
+        } else if (this.follow.x - this.maxX < this.x) {
+            this.x = this.follow.x - this.maxX;
+        }
+
+        if (this.follow.y - this.y + this.maxY > this.height) {
+            this.y = this.follow.y - (this.height - this.maxY);
+        } else if (this.follow.y - this.maxY < this.height) {
+            this.y = this.follow.y - this.maxY;
+        }
+
+        // Set the updated camera settings into the camera rectangle.
+        this.camRect.set(this.x, this.y);
+
+        if (!this.camRect.within(this.mapRect)) {
+            if (this.camRect.left < this.mapRect.left) this.x = this.mapRect.left;
+
+            if (this.camRect.top < this.mapRect.top) this.y = this.mapRect.top;
+
+            if (this.camRect.right > this.mapRect.right) this.x = this.mapRect.right - this.width;
+
+            if (this.camRect.bottom > this.mapRect.bottom) this.y = this.mapRect.bottom - this.height;
+        }
+    }
+
+});
+
+/***/ }),
+/* 38 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2693,15 +2889,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 });
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_laravel_echo__ = __webpack_require__(46);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_laravel_echo__ = __webpack_require__(48);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_laravel_echo___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_laravel_echo__);
 
-window._ = __webpack_require__(47);
+window._ = __webpack_require__(49);
 
 /**
  * We'll load jQuery and the Bootstrap jQuery plugin which provides support
@@ -2710,9 +2906,9 @@ window._ = __webpack_require__(47);
  */
 
 try {
-  window.$ = window.jQuery = __webpack_require__(45);
+  window.$ = window.jQuery = __webpack_require__(47);
 
-  __webpack_require__(39);
+  __webpack_require__(41);
 } catch (e) {}
 
 /**
@@ -2747,7 +2943,7 @@ if (token) {
 
 
 
-window.Pusher = __webpack_require__(49);
+window.Pusher = __webpack_require__(51);
 
 window.Echo = new __WEBPACK_IMPORTED_MODULE_0_laravel_echo___default.a({
   broadcaster: 'pusher',
@@ -2757,7 +2953,76 @@ window.Echo = new __WEBPACK_IMPORTED_MODULE_0_laravel_echo___default.a({
 });
 
 /***/ }),
-/* 39 */
+/* 40 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Rectangle - Creates a 2d rectangle that is placed over the map canvas.
+ * This is used as the cameras 'virtual' representation of the actual
+ * canvas, however; instead of drawing another canvas, draw the rect.
+ * @param {Number} left - Top position (x)
+ * @param {Number} top - Left position (y)
+ * @param {Number} width - Width of rect
+ * @param {Number} height - Height of rect
+ */
+var Rectangle = function () {
+    function Rectangle(left, top, width, height) {
+        _classCallCheck(this, Rectangle);
+
+        this.top = left || 0;
+        this.left = top || 0;
+        this.width = width || 0;
+        this.height = height || 0;
+        this.right = this.left + this.width;
+        this.bottom = this.top + this.height;
+    }
+
+    /**
+     * Sets the rectangle values accordingly based off the the Camera
+     * 'following' the player.
+     * @param {Number} left - Left position (x)
+     * @param {Number} top - Right position (y)
+     * @param {Number} width - Width of rect
+     * @param {Number} height - Height of rect
+     */
+
+
+    _createClass(Rectangle, [{
+        key: "set",
+        value: function set(left, top, width, height) {
+            this.left = left;
+            this.top = top;
+            this.width = width || this.width;
+            this.height = height || this.height;
+            this.right = this.left + this.width;
+            this.bottom = this.top + this.height;
+        }
+
+        /**
+         * Boundary check
+         * @param {Object} rect - Injected 'Rectangle' class object
+         * @return {Boolean}
+         */
+
+    }, {
+        key: "within",
+        value: function within(rect) {
+            return rect.left <= this.left && rect.right >= this.right && rect.top <= this.top && rect.bottom >= this.bottom;
+        }
+    }]);
+
+    return Rectangle;
+}();
+
+/* harmony default export */ __webpack_exports__["a"] = (Rectangle);
+
+/***/ }),
+/* 41 */
 /***/ (function(module, exports) {
 
 /*!
@@ -5140,42 +5405,42 @@ if (typeof jQuery === 'undefined') {
 
 
 /***/ }),
-/* 40 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(2)();
 exports.push([module.i, "\n.elite-map {\n}\n\n", ""]);
 
 /***/ }),
-/* 41 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(2)();
 exports.push([module.i, "\n.chat-log .chat-message:nth-child(even) {\n    background-color: #ccc;\n}\n", ""]);
 
 /***/ }),
-/* 42 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(2)();
 exports.push([module.i, "\n.test-map {\n}\n\n", ""]);
 
 /***/ }),
-/* 43 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(2)();
 exports.push([module.i, "\n.chat-composer {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n}\n.chat-composer input {\n    -webkit-box-flex: 1;\n        -ms-flex: 1 auto;\n            flex: 1 auto;\n}\n.chat-composer button {\n    border-radius: 0;\n}\n", ""]);
 
 /***/ }),
-/* 44 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(2)();
 exports.push([module.i, "\n.chat-message {\n    padding: 1rem;\n}\n.chat-message > p {\n    margin-bottom: .5rem;\n}\n\n", ""]);
 
 /***/ }),
-/* 45 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -15435,7 +15700,7 @@ return jQuery;
 
 
 /***/ }),
-/* 46 */
+/* 48 */
 /***/ (function(module, exports) {
 
 var asyncGenerator = function () {
@@ -16208,7 +16473,7 @@ var Echo = function () {
 module.exports = Echo;
 
 /***/ }),
-/* 47 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, module) {var __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -33297,10 +33562,10 @@ module.exports = Echo;
   }
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10), __webpack_require__(71)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10), __webpack_require__(74)(module)))
 
 /***/ }),
-/* 48 */
+/* 50 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -33490,7 +33755,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 49 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -37628,18 +37893,18 @@ return /******/ (function(modules) { // webpackBootstrap
 ;
 
 /***/ }),
-/* 50 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
 /* styles */
-__webpack_require__(67)
+__webpack_require__(70)
 
 var Component = __webpack_require__(1)(
   /* script */
   __webpack_require__(31),
   /* template */
-  __webpack_require__(62),
+  __webpack_require__(65),
   /* scopeId */
   null,
   /* cssModules */
@@ -37666,18 +37931,18 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 51 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
 /* styles */
-__webpack_require__(65)
+__webpack_require__(68)
 
 var Component = __webpack_require__(1)(
   /* script */
   __webpack_require__(32),
   /* template */
-  __webpack_require__(58),
+  __webpack_require__(61),
   /* scopeId */
   null,
   /* cssModules */
@@ -37704,18 +37969,18 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 52 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
 /* styles */
-__webpack_require__(68)
+__webpack_require__(71)
 
 var Component = __webpack_require__(1)(
   /* script */
   __webpack_require__(33),
   /* template */
-  __webpack_require__(63),
+  __webpack_require__(66),
   /* scopeId */
   null,
   /* cssModules */
@@ -37742,14 +38007,14 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 53 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
   /* script */
   __webpack_require__(34),
   /* template */
-  __webpack_require__(59),
+  __webpack_require__(62),
   /* scopeId */
   null,
   /* cssModules */
@@ -37776,18 +38041,18 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 54 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
 /* styles */
-__webpack_require__(64)
+__webpack_require__(67)
 
 var Component = __webpack_require__(1)(
   /* script */
   __webpack_require__(35),
   /* template */
-  __webpack_require__(57),
+  __webpack_require__(60),
   /* scopeId */
   null,
   /* cssModules */
@@ -37814,18 +38079,18 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 55 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
 /* styles */
-__webpack_require__(66)
+__webpack_require__(69)
 
 var Component = __webpack_require__(1)(
   /* script */
   __webpack_require__(36),
   /* template */
-  __webpack_require__(61),
+  __webpack_require__(64),
   /* scopeId */
   null,
   /* cssModules */
@@ -37852,14 +38117,47 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 56 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(1)(
   /* script */
   __webpack_require__(37),
   /* template */
-  __webpack_require__(60),
+  null,
+  /* scopeId */
+  null,
+  /* cssModules */
+  null
+)
+Component.options.__file = "/home/vagrant/Code/Elite/resources/assets/js/components/world/Camera.vue"
+if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key !== "__esModule"})) {console.error("named exports are not supported in *.vue files.")}
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-781dc5dd", Component.options)
+  } else {
+    hotAPI.reload("data-v-781dc5dd", Component.options)
+  }
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 59 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var Component = __webpack_require__(1)(
+  /* script */
+  __webpack_require__(38),
+  /* template */
+  __webpack_require__(63),
   /* scopeId */
   null,
   /* cssModules */
@@ -37886,7 +38184,7 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 57 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -37911,7 +38209,7 @@ if (false) {
 }
 
 /***/ }),
-/* 58 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -37935,7 +38233,7 @@ if (false) {
 }
 
 /***/ }),
-/* 59 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -37964,7 +38262,7 @@ if (false) {
 }
 
 /***/ }),
-/* 60 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -37983,15 +38281,12 @@ if (false) {
 }
 
 /***/ }),
-/* 61 */
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
   return _c('div', {
-    staticClass: "test-map",
-    attrs: {
-      "images": _vm.images
-    }
+    staticClass: "test-map"
   }, [_vm._m(0), _vm._v(" "), _c('canvas', {
     ref: "testCanvas",
     attrs: {
@@ -38012,7 +38307,7 @@ if (false) {
 }
 
 /***/ }),
-/* 62 */
+/* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -38058,7 +38353,7 @@ if (false) {
 }
 
 /***/ }),
-/* 63 */
+/* 66 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -38075,13 +38370,13 @@ if (false) {
 }
 
 /***/ }),
-/* 64 */
+/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(40);
+var content = __webpack_require__(42);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
@@ -38101,13 +38396,13 @@ if(false) {
 }
 
 /***/ }),
-/* 65 */
+/* 68 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(41);
+var content = __webpack_require__(43);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
@@ -38127,13 +38422,13 @@ if(false) {
 }
 
 /***/ }),
-/* 66 */
+/* 69 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(42);
+var content = __webpack_require__(44);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
@@ -38153,13 +38448,13 @@ if(false) {
 }
 
 /***/ }),
-/* 67 */
+/* 70 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(43);
+var content = __webpack_require__(45);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
@@ -38179,13 +38474,13 @@ if(false) {
 }
 
 /***/ }),
-/* 68 */
+/* 71 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(44);
+var content = __webpack_require__(46);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
@@ -38205,7 +38500,7 @@ if(false) {
 }
 
 /***/ }),
-/* 69 */
+/* 72 */
 /***/ (function(module, exports) {
 
 /**
@@ -38238,7 +38533,7 @@ module.exports = function listToStyles (parentId, list) {
 
 
 /***/ }),
-/* 70 */
+/* 73 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -47936,7 +48231,7 @@ module.exports = Vue$3;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
 
 /***/ }),
-/* 71 */
+/* 74 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -47964,7 +48259,7 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 72 */
+/* 75 */
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(11);
